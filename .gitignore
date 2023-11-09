@@ -29,6 +29,8 @@
 *.user
 *.jdebug.user
 *.jdebug
+Debug/
+*.launch
 
 # Dependency files
 *.d
