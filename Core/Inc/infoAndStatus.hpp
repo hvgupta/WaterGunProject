@@ -5,6 +5,7 @@
 #ifndef INC_INFOANDSTATUS_HPP_
 #define INC_INFOANDSTATUS_HPP_
 #include "main.h"
+#include "lcd.h"
 
 namespace WaterGun{
 
