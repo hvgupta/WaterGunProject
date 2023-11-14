@@ -58,6 +58,7 @@ compile_commands.json
 # Folder view configuration files
 .DS_Store
 Desktop.ini
+.metadata/
 
 # Thumbnail cache files
 ._*

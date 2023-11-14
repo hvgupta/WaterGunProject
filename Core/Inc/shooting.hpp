@@ -14,11 +14,10 @@ namespace shootingProcess{
             const int waterFlowRate;
 
             bool triggerState;
-            mililitres currentVolume;
 
         public:
             shoot(const HAL_Ticks,const int);
-            bool enoughWater();
+            bool enoughWater(const int&);
     };
 
     class singleShot: public shoot{
