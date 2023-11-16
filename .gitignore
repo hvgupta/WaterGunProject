@@ -29,8 +29,6 @@
 *.user
 *.jdebug.user
 *.jdebug
-Debug/
-*.launch
 
 # Dependency files
 *.d
@@ -38,7 +36,6 @@ Debug/
 # Text editor configuration
 .idea/
 .vscode/
-.settings/
 *.sublime-workspace
 
 # Patch cache
@@ -51,14 +48,10 @@ compile_commands.json
 .vagrant
 
 # cubeMX files
-.mxproject
-.project
-.cproject
 
 # Folder view configuration files
 .DS_Store
 Desktop.ini
-.metadata/
 
 # Thumbnail cache files
 ._*
