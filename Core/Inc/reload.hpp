@@ -17,6 +17,7 @@ namespace reloadingProcess{
         public:
             Reload(const mililitres);
             bool reachedMaxAmount();
+            void gunReloading();
     };
 
 }
