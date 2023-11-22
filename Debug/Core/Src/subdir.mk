@@ -18,7 +18,8 @@ CPP_SRCS += \
 ../Core/Src/infoAndStatus.cpp \
 ../Core/Src/main.cpp \
 ../Core/Src/reload.cpp \
-../Core/Src/shooting.cpp 
+../Core/Src/shooting.cpp \
+../Core/Src/stm32f1xx_it.cpp 
 
 C_DEPS += \
 ./Core/Src/lcd.d \
@@ -47,7 +48,8 @@ CPP_DEPS += \
 ./Core/Src/infoAndStatus.d \
 ./Core/Src/main.d \
 ./Core/Src/reload.d \
-./Core/Src/shooting.d 
+./Core/Src/shooting.d \
+./Core/Src/stm32f1xx_it.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

@@ -25,5 +25,11 @@ namespace WaterGun{
 
 
     }
+    STATUS currentInfoDisplay::getStatus(){
+    	return this->status;
+    }
+    void currentInfoDisplay::changeStatus(STATUS a){
+    	this->status = a;
+    }
 
 }

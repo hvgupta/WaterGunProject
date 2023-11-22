@@ -25,8 +25,11 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "lcd.h"
-#include "reload.hpp"
 #include "math.h"
+#include "aimAssist.hpp"
+#include "reload.hpp"
+#include "shooting.hpp"
+#include "infoAndStatus.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -65,83 +68,70 @@ static void MX_TIM1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-const int MAX_LED = 30;
 
-uint8_t LED_Data[MAX_LED][4];
-uint8_t LED_Mod[MAX_LED][4];  // for brightness
+/*LED Relate BEGIN*/
+const int Total_LEDs = 30;
+uint8_t LEDs_Data[Total_LEDs][3];
+uint8_t LEDs_Data_Temp[Total_LEDs][3];	// For brightness
+int dataSent_Finish = 0;				// Flag for DMA control
 
-int datasentflag = 0;
-void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
-{
+void Set_LED (int LEDidx, int Red, int Green, int Blue){	//0-255 scale
+	LEDs_Data[LEDidx][0] = Green;
+	LEDs_Data[LEDidx][1] = Red;
+	LEDs_Data[LEDidx][2] = Blue;
+}
+
+void Set_Brightness (int brightness){		// 0-100
+	//Make sure value is from 0 to 100
+	brightness = (brightness < 0) ? 0 : (brightness > 100) ? 100 : brightness;
+
+	//Tangent for linear scaling
+	int brightness_45 = brightness*45/100;	// 0-45
+	float angle = 90-brightness_45;  	// in degree
+
+	for (int i=0; i<Total_LEDs; i++){
+		for (int j=0; j<3; j++){
+			LEDs_Data_Temp[i][j] = LEDs_Data[i][j] / tan(angle*M_PI / 180);
+		}
+	}
+
+}
+
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim){
 	HAL_TIM_PWM_Stop_DMA(&htim1, TIM_CHANNEL_1);
-	datasentflag=1;
+	dataSent_Finish = 1;
 }
 
-void Set_LED (int LEDnum, int Red, int Green, int Blue)
+void WS2812B_LED_Data_Send()
 {
-	LED_Data[LEDnum][0] = LEDnum;
-	LED_Data[LEDnum][1] = Green;
-	LED_Data[LEDnum][2] = Red;
-	LED_Data[LEDnum][3] = Blue;
+    uint32_t indx = 0;
+    uint32_t colorData;			//use 32 bits as need transmit 24 bits RGB.
+    uint16_t pwmData[24*Total_LEDs + 45];
+
+    for (int i = 0; i < Total_LEDs ; i++){
+    	//24 bit, G7 G6 G5 G4 G3 G2 G1 G0 R7 R6 R5 R4 R3 R2 R1 R0 B7 B6 B5 B4 B3 B2 B1 B0
+        colorData = (LEDs_Data_Temp[i][0] << 16) |
+        				(LEDs_Data_Temp[i][1] << 8) |
+									LEDs_Data_Temp[i][2];
+
+    	//High bit is sent first, follow data sheet
+        for (int j = 23; j >= 0; j--)
+            pwmData[indx++] = (colorData & (1 << j)) ? 60 : 30;	// 1s: ~64% of 90, 0s: ~32% of 90
+    }
+    //Reset code which is above 50 us of 0s, period of clock is 1.25us
+    for (int i = 0; i < 45; i++)
+    	pwmData[indx++] = 0;
+
+    HAL_TIM_PWM_Start_DMA(&htim1, TIM_CHANNEL_1, (uint32_t *)pwmData, indx);
+
+    while (!dataSent_Finish){
+    	// Wait for data to be sent
+    }
+    // Reset the flag
+    dataSent_Finish = 0;
 }
-
-int PI = 3.14159265;
-
-void Set_Brightness (int brightness)  // 0-45
-{
-	if (brightness > 45) brightness = 45;
-	for (int i=0; i<MAX_LED; i++)
-	{
-		LED_Mod[i][0] = LED_Data[i][0];
-		for (int j=1; j<4; j++)
-		{
-			float angle = 90-brightness;  // in degrees
-			angle = angle*PI / 180;  // in rad
-			LED_Mod[i][j] = (LED_Data[i][j])/(tan(angle));
-		}
-	}
-}
-
-uint16_t pwmData[(24*MAX_LED)+50];
-
-void WS2812_Send (void)
-{
-	uint32_t indx=0;
-	uint32_t color;
-
-
-	for (int i= 0; i<MAX_LED; i++)
-	{
-		color = ((LED_Mod[i][1]<<16) | (LED_Mod[i][2]<<8) | (LED_Mod[i][3]));
-
-		for (int i=23; i>=0; i--)
-		{
-			if (color&(1<<i))
-			{
-				//pwmData[indx] = 58;  // 64% of 90
-				pwmData[indx] = 60;  // 2/3 of 90
-			}
-
-			else
-			{
-				//pwmData[indx] = 29;  // 32% of 90
-				pwmData[indx] = 30;  // 1/3 of 90
-			}
-			indx++;
-		}
-
-	}
-
-	for (int i=0; i<50; i++)
-	{
-		pwmData[indx] = 0;
-		indx++;
-	}
-
-	HAL_TIM_PWM_Start_DMA(&htim1, TIM_CHANNEL_1, (uint32_t *)pwmData, indx);
-	while (!datasentflag){};
-	datasentflag = 0;
-}
+/*LED Related END*/
+extern WaterGun::currentInfoDisplay infoDisplay;
 /* USER CODE END 0 */
 
 /**
@@ -184,47 +174,64 @@ int main(void)
   DEBUG_DELAY();
   DEBUG_DELAY();
 
-//  Set_LED(0, 255, 0, 0);
-//  Set_LED(1, 0, 255, 0);
-//  Set_LED(2, 0, 0, 255);
-//  Set_LED(3, 46, 89, 128);
-//  Set_LED(4, 156, 233, 100);
-//  Set_LED(5, 102, 0, 235);
-//  Set_LED(6, 47, 38, 77);
-//  Set_LED(7, 255, 200, 0);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	  const char* Name = "Gupta";
-//	  LCD_DrawString(100,100,Name);
-//	  reloadingProcess::Reload testobj(750);
-//	  testobj.gunReloading();
-	  for (int i=0; i<30+4; i++)
-	  {
-		  if (i<30)
-			  Set_LED(i, 0, 0, 255);
-		  if ( (i-4) >= 0 )
-			  Set_LED(i-4, 0, 0, 0);
-		  Set_Brightness(10);
-		  WS2812_Send();
-		  HAL_Delay (50);
-	  }
+	  const char* Name = "Gupta";
+	  LCD_DrawString(100,100,Name);
 
-//	  for (int i=0; i<46; i++)
-//	  {
-//		  Set_Brightness(i);
-//		  WS2812_Send();
-//		  HAL_Delay (50);
-//	  }
-//	  for (int i=45; i>=0; i--)
-//	  {
-//		  Set_Brightness(i);
-//		  WS2812_Send();
-//		  HAL_Delay (50);
-//	  }
+	  //infoDisplay.changeStatus(WaterGun::STATUS::OFF_STATE);	//test
+	  WaterGun::STATUS curStatus = infoDisplay.getStatus();
+	  if (curStatus == WaterGun::STATUS::OFF_STATE){
+		  for (int i=0; i<30+4; i++)
+		  	  {
+		  		  if (i<30)
+		  			  Set_LED(i, 200, 200, 0);
+		  		  if ( (i-4) >= 0 )
+		  			  Set_LED(i-4, 0, 0, 0);
+		  		  Set_Brightness(50);
+		  		  WS2812B_LED_Data_Send();
+		  		  HAL_Delay (50);
+		  	  }
+	  }
+	  else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
+		  for (int i=0; i<30+4; i++)
+		  	  {
+		  		  if (i<30)
+		  			  Set_LED(i, 0, 200, 0);
+		  		  if ( (i-4) >= 0 )
+		  			  Set_LED(i-4, 0, 0, 0);
+		  		  Set_Brightness(50);
+		  		  WS2812B_LED_Data_Send();
+		  		  HAL_Delay (50);
+		  	  }
+	  }
+	  else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
+		  /*Add here*/
+	  }
+	  else{	//CONTINIOUS_SHOOT_STATE
+		  /*Add here*/
+	  }
+	  GPIO_PinState pinUpperBottle = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_10);
+	  GPIO_PinState pinLowerBottle = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_11);
+	  LCD_DrawString(50,200,"                ");
+	  if (pinUpperBottle == GPIO_PIN_RESET && pinLowerBottle == GPIO_PIN_RESET){
+		  LCD_DrawString(50,200,"Water Full");
+	  }
+	  else if(pinUpperBottle == GPIO_PIN_SET && pinLowerBottle == GPIO_PIN_RESET){
+		  LCD_DrawString(50,200,"Have some water");
+	  }
+	  else if(pinUpperBottle == GPIO_PIN_SET && pinLowerBottle == GPIO_PIN_SET){
+		  LCD_DrawString(50,200,"Not enough water");
+	  }
+	  else
+		  LCD_DrawString(50,200,"Impossible");
+	  reloadingProcess::Reload testobj(500);
+	  //testobj.gunReloading();
+
 //	  LCD_DrawEllipse(120,160,75,25,BLACK);
     /* USER CODE END WHILE */
 
@@ -396,6 +403,18 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : PC8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_8;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PC9 PC10 PC11 */
+  GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
   /*Configure GPIO pins : PB8 PB9 */
   GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -409,6 +428,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 
@@ -504,6 +527,7 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+
 #ifdef __cplusplus
 }
 #endif

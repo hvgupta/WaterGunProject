@@ -8,23 +8,38 @@ namespace reloadingProcess{
     }
 
     bool Reload::reachedMaxAmount(){
-        return currentVolume == maxVolume;
+    	GPIO_PinState pinUpperBottle = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_10);
+    	GPIO_PinState pinLowerBottle = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_11);
+    	if (pinUpperBottle == GPIO_PIN_RESET && pinLowerBottle == GPIO_PIN_RESET){
+    		currentVolume = maxVolume;
+    		return true;
+        }
+    	return false;
     }
     void Reload::gunReloading(){
-//    	while (!reachedMaxAmount()){
-//			//Turn on the reloading water pump
-//			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);		//In3 on
-//			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);	//In4 off
-//    	}
-//    	//Turn off the reloading water pump
-//    	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);	//In3 off
-//    	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);	//In4 off
+    	while (!reachedMaxAmount() && triggerState){
+			//Turn on the reloading water pump
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);		//In3 on
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);	//In2, In4 off
 
-    	//testing
+			//Maybe update something LCD screen
+			/*add here*/
 
-    	//Turn on the reloading water pump
-    	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);		//In3 on
-    	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);	//In4 off
+			//LED strip animation
+			/*add here*/
+
+			//Update currentVolume
+			/*add here*/
+			//Base on actual testing
+			//If flow_rate = 1000ml/min, then
+			//currentVolume += flow_rate/(60*(1000/50));
+			//if currentVolume > maxVolume, then currentVolume = maxVolume
+			HAL_Delay(50);		//0.05s pump 0.1 second
+		}
+
+    	//Turn off the reloading water pump
+    	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);		//In3 off
+    	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);	//In2, In4 off
     }
 
 }

@@ -15,6 +15,9 @@
   *
   ******************************************************************************
   */
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -22,6 +25,7 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "infoAndStatus.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,7 +55,7 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+WaterGun::currentInfoDisplay infoDisplay;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -221,9 +225,48 @@ void EXTI9_5_IRQHandler(void)
 	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET)
 	{
 		/*Switch code BEGIN*/
-
-		/*Don't write here, we should write to .cpp file instead*/
-
+		infoDisplay.getStatus();
+		WaterGun::STATUS curStatus = infoDisplay.getStatus();
+		infoDisplay.changeStatus(WaterGun::STATUS::RELOAD_STATE);
+		if (curStatus == WaterGun::STATUS::OFF_STATE){
+//			for (int i=0; i<30+4; i++)
+//			{
+//				if (i<30)
+//				  Set_LED(i, 200, 200, 0);
+//				if ( (i-4) >= 0 )
+//				  Set_LED(i-4, 200, 200, 0);
+//				Set_Brightness(50);
+//				WS2812B_LED_Data_Send();
+//				HAL_Delay (200);
+//			}
+			LCD_DrawString(50,150,"                ");
+			//LCD_DrawString(50,150,"OFF_STATE");
+		}
+		else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
+//			for (int i=0; i<30+4; i++)
+//			{
+//				if (i<30)
+//				  Set_LED(i, 0, 200, 0);
+//				if ( (i-4) >= 0 )
+//				  Set_LED(i-4, 0, 200, 0);
+//				Set_Brightness(50);
+//				WS2812B_LED_Data_Send();
+//				HAL_Delay (200);
+//			}
+//			LCD_DrawString(50,150,"                ");
+//			LCD_DrawString(50,150,"RELOAD_STATE");
+		  }
+		else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
+			/*Add here*/
+		}
+		else{	//CONTINIOUS_SHOOT_STATE
+			/*Add here*/
+		}
+		LCD_DrawString(50,150,"Switch on ");
+		if ( HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_9) ==  GPIO_PIN_SET){
+			LCD_DrawString(50,150,"Switch off ");
+			infoDisplay.changeStatus(WaterGun::STATUS::OFF_STATE);
+		}
 		/*Switch code END*/
 		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
 		HAL_GPIO_EXTI_Callback(GPIO_PIN_8);
@@ -236,5 +279,8 @@ void EXTI9_5_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+#ifdef __cplusplus
+}
+#endif
 
 /* USER CODE END 1 */

@@ -28,6 +28,8 @@ namespace WaterGun{
 		public:
 			currentInfoDisplay();
 			void displayInfo();
+			STATUS getStatus();
+			void changeStatus(STATUS);
 	};
 }
 
