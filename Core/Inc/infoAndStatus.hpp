@@ -6,6 +6,7 @@
 #define INC_INFOANDSTATUS_HPP_
 #include "main.h"
 #include "lcd.h"
+#include <cstdio>
 
 namespace WaterGun{
 
@@ -24,11 +25,17 @@ namespace WaterGun{
 			STATUS status;
 			int batteryLevel;
 			meters closestObject;
-			
+
 		public:
 			currentInfoDisplay();
+			void displayBasic();
 			void displayInfo();
 	};
+
+	char* itos(const int,char*);
+	char* STATUSToString(const STATUS&);
+
+
 }
 
 
