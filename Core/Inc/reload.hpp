@@ -18,6 +18,8 @@ namespace reloadingProcess{
             Reload(const mililitres);
             bool reachedMaxAmount();
             void gunReloading();
+            void setTriggerState(bool on);
+            bool getTriggerState();
     };
 
 }

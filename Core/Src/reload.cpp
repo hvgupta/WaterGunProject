@@ -41,5 +41,16 @@ namespace reloadingProcess{
     	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);		//In3 off
     	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);	//In2, In4 off
     }
+    void Reload::setTriggerState(bool on){
+    	if (on){
+    		this->triggerState = true;
+    	}
+    	else{
+    		this->triggerState = false;
+    	}
+    }
+    bool Reload::getTriggerState(){
+    	return triggerState==true;
+    }
 
 }

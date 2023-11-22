@@ -70,7 +70,7 @@ static void MX_TIM1_Init(void);
 /* USER CODE BEGIN 0 */
 
 /*LED Relate BEGIN*/
-const int Total_LEDs = 30;
+const int Total_LEDs = 20;		//There are 30 leds, but we are only going to use the first 20 LEDs.
 uint8_t LEDs_Data[Total_LEDs][3];
 uint8_t LEDs_Data_Temp[Total_LEDs][3];	// For brightness
 int dataSent_Finish = 0;				// Flag for DMA control
@@ -131,7 +131,10 @@ void WS2812B_LED_Data_Send()
     dataSent_Finish = 0;
 }
 /*LED Related END*/
+
 extern WaterGun::currentInfoDisplay infoDisplay;
+extern reloadingProcess::Reload Reloadobj;
+
 /* USER CODE END 0 */
 
 /**
@@ -183,34 +186,95 @@ int main(void)
 	  const char* Name = "Gupta";
 	  LCD_DrawString(100,100,Name);
 
-	  //infoDisplay.changeStatus(WaterGun::STATUS::OFF_STATE);	//test
+//	  infoDisplay.changeStatus(WaterGun::STATUS::OFF_STATE);	//test, status should be change be interrupt using K1
+	  infoDisplay.changeStatus(WaterGun::STATUS::RELOAD_STATE);	//test, status should be change be interrupt using K1
+//	  infoDisplay.changeStatus(WaterGun::STATUS::SINGLE_SHOOT_STATE);	//test, status should be change be interrupt using K1
+//	  infoDisplay.changeStatus(WaterGun::STATUS::CONTINIOUS_SHOOT_STATE);	//test, status should be change be interrupt using K1
+
 	  WaterGun::STATUS curStatus = infoDisplay.getStatus();
 	  if (curStatus == WaterGun::STATUS::OFF_STATE){
-		  for (int i=0; i<30+4; i++)
-		  	  {
-		  		  if (i<30)
-		  			  Set_LED(i, 200, 200, 0);
-		  		  if ( (i-4) >= 0 )
-		  			  Set_LED(i-4, 0, 0, 0);
-		  		  Set_Brightness(50);
-		  		  WS2812B_LED_Data_Send();
-		  		  HAL_Delay (50);
-		  	  }
+		 //LED off state motion (Breathing)
+		  for (int i=0; i<20; i++)
+		  {
+			  Set_LED(i, 255-2*i, 255-2*i, 4*i);	//Yellow to less yellow
+		  }
+		  for (int i=0; i<20; i++)
+		  {
+			  Set_Brightness(3*i);
+			  WS2812B_LED_Data_Send();
+			  HAL_Delay (25);
+		  }
+		  for (int i=19; i>=0; i--)
+		  {
+			  Set_Brightness(3*i);
+			  WS2812B_LED_Data_Send();
+			  HAL_Delay (25);
+		  }
 	  }
 	  else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
-		  for (int i=0; i<30+4; i++)
-		  	  {
-		  		  if (i<30)
-		  			  Set_LED(i, 0, 200, 0);
-		  		  if ( (i-4) >= 0 )
-		  			  Set_LED(i-4, 0, 0, 0);
-		  		  Set_Brightness(50);
-		  		  WS2812B_LED_Data_Send();
-		  		  HAL_Delay (50);
-		  	  }
+		  //If switch is pressed
+		  if (Reloadobj.getTriggerState() == true){
+			  //LED reload motion
+			  for (int i=0; i<10+3; i++)
+			  {
+				  if (i<10){
+					  //Turn on head of middleleft LED
+					  Set_LED(9-i, 42, 254, 183);			//Cyan
+					  //Turn on head of middleright LED
+					  Set_LED(10+i, 42, 254, 183);			//Cyan
+				  }
+				  if ( (i-3) >= 0 ){
+					  //Turn on tail of middleleft LED
+					  Set_LED(9-(i-3), 0, 0, 0);
+					  //Turn off tail of middleright LED
+					  Set_LED(10+(i-3), 0, 0, 0);
+				  }
+				  Set_Brightness(60);
+				  WS2812B_LED_Data_Send();
+				  HAL_Delay (77);
+			  }
+		  }
+		  //If switch not yet pressed
+		  else{
+			  //LED reload motion (Breathing)
+			  for (int i=0; i<20; i++)
+			  {
+				  Set_LED(i, 42, 254, 183);					//Cyan
+			  }
+			  for (int i=0; i<20; i++)
+			  {
+				  Set_Brightness(3*i);
+				  WS2812B_LED_Data_Send();
+				  HAL_Delay (25);
+			  }
+			  for (int i=19; i>=0; i--)
+			  {
+				  Set_Brightness(3*i);
+				  WS2812B_LED_Data_Send();
+				  HAL_Delay (25);
+			  }
+		  }
 	  }
 	  else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
-		  /*Add here*/
+		  //LED shoot out motion
+		  for (int i=0; i<10+3; i++)
+		  {
+			  if (i<10){
+				  //Turn on head of leftmost LED
+				  Set_LED(i, 138, 43, 226);			//Blue-purple
+				  //Turn on head of rightmost LED
+				  Set_LED(19-i, 138, 43, 226);		//Blue-purple
+			  }
+			  if ( (i-3) >= 0 ){
+				  //Turn on tail of leftmost LED
+				  Set_LED(i-3, 0, 0, 0);
+				  //Turn off tail of rightmost LED
+				  Set_LED(19-i+3, 0, 0, 0);
+			  }
+			  Set_Brightness(70);
+			  WS2812B_LED_Data_Send();
+			  HAL_Delay (100);
+		  }
 	  }
 	  else{	//CONTINIOUS_SHOOT_STATE
 		  /*Add here*/
@@ -229,8 +293,6 @@ int main(void)
 	  }
 	  else
 		  LCD_DrawString(50,200,"Impossible");
-	  reloadingProcess::Reload testobj(500);
-	  //testobj.gunReloading();
 
 //	  LCD_DrawEllipse(120,160,75,25,BLACK);
     /* USER CODE END WHILE */
