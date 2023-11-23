@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "infoAndStatus.hpp"
 
 namespace WaterGun{
@@ -46,22 +50,22 @@ namespace WaterGun{
         other things to consider, maybe making the board display in landscape instead of potrait
     */
     void currentInfoDisplay::displayInfo(){
-        LCD_Clear(35,319,16,47,0xFFFF);
-        LCD_DrawString(35,319,itos(Volume));
+//        LCD_Clear(35,319,16,47,0xFFFF);
+////        LCD_DrawString(35,319,itos(Volume));
+//
+//        LCD_Clear(35,271,17,51,0xFFFF);
+//        LCD_DrawString(35,271,STATUSToString(status));
 
-        LCD_Clear(35,271,17,51,0xFFFF);
-        LCD_DrawString(35,271,STATUSToString(status));
-
-        LCD_Clear()
+//        LCD_Clear()
     }
 
     /* End of the declaration of class functions */
 
-    char* itos(const int a){
-        char buffer[10];
-        sprintf(buffer,"%d",a);
-        return buffer;
-    }
+//    char* itos(const int a){
+//        char buffer[10];
+//        sprintf(buffer,"%d",a);
+//        return buffer;
+//    }
 
     char* STATUSToString(const STATUS& status){
         switch (status)
@@ -80,3 +84,7 @@ namespace WaterGun{
     }
 
 }
+
+#ifdef __cplusplus
+}
+#endif
