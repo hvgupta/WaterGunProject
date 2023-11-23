@@ -52,7 +52,7 @@ namespace WaterGun{
         LCD_Clear(35,271,17,51,0xFFFF);
         LCD_DrawString(35,271,STATUSToString(status));
 
-        LCD_Clear()
+        // LCD_Clear()
     }
 
     /* End of the declaration of class functions */

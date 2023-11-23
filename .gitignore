@@ -2,6 +2,8 @@
 *.slo
 *.lo
 *.o
+.metadata\
+.settings\
 
 # Re-track the .o file from the Driver 
 !/RM2024-RDC-Core/Drivers/*.o
