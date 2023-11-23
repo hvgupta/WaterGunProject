@@ -30,6 +30,7 @@ extern "C" {
 #include "reload.hpp"
 #include "shooting.hpp"
 #include "infoAndStatus.hpp"
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -70,7 +71,6 @@ static void MX_TIM1_Init(void);
 /* USER CODE BEGIN 0 */
 
 /*LED Relate BEGIN*/
-const int Total_LEDs = 20;		//There are 30 leds, but we are only going to use the first 20 LEDs.
 uint8_t LEDs_Data[Total_LEDs][3];
 uint8_t LEDs_Data_Temp[Total_LEDs][3];	// For brightness
 int dataSent_Finish = 0;				// Flag for DMA control
@@ -184,11 +184,10 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  const char* Name = "Gupta";
+	  const char* Name = "zlashc";
 	  LCD_DrawString(100,100,Name);
 
 	  //Note: shooting mode change using Key1 via interrupt
-
 	  WaterGun::STATUS curStatus = infoDisplay.getStatus();
 	  if (curStatus == WaterGun::STATUS::OFF_STATE){
 		 //LED off state motion (Breathing)
@@ -232,6 +231,8 @@ int main(void)
 				  HAL_Delay (77);
 			  }
 			  Reloadobj.gunReloading();
+			  singleShotobj.updateCurrentVolume(Reloadobj.getCurrentVolume());
+			  continousShotsobj.updateCurrentVolume(Reloadobj.getCurrentVolume());
 		  }
 		  //If switch not yet pressed
 		  else{
@@ -267,17 +268,19 @@ int main(void)
 					  Set_LED(19-i, 138, 43, 226);		//Blue-purple
 				  }
 				  if ( (i-3) >= 0 ){
-					  //Turn on tail of leftmost LED
+					  //Turn off tail of leftmost LED
 					  Set_LED(i-3, 0, 0, 0);
 					  //Turn off tail of rightmost LED
 					  Set_LED(19-i+3, 0, 0, 0);
 				  }
 				  Set_Brightness(70);
 				  WS2812B_LED_Data_Send();
-				  HAL_Delay (100);
+				  HAL_Delay (77);
 			  }
 			  singleShotobj.gunShotonce();
 			  singleShotobj.setTriggerState(false);
+			  Reloadobj.updateCurrentVolume(singleShotobj.getCurrentVolume());
+			  continousShotsobj.updateCurrentVolume(singleShotobj.getCurrentVolume());
 		  }
 		  //If switch not yet pressed
 		  else{
@@ -313,16 +316,18 @@ int main(void)
 					  Set_LED(19-i, 255, 105, 100);			//Pink
 				  }
 				  if ( (i-3) >= 0 ){
-					  //Turn on tail of leftmost LED
+					  //Turn off tail of leftmost LED
 					  Set_LED(i-3, 0, 0, 0);
 					  //Turn off tail of rightmost LED
 					  Set_LED(19-i+3, 0, 0, 0);
 				  }
 				  Set_Brightness(70);
 				  WS2812B_LED_Data_Send();
-				  HAL_Delay (100);
+				  HAL_Delay (77);
 			  }
 			  continousShotsobj.gunShotcontinous();
+			  Reloadobj.updateCurrentVolume(continousShotsobj.getCurrentVolume());
+			  singleShotobj.updateCurrentVolume(continousShotsobj.getCurrentVolume());
 		  }
 		  //If switch not yet pressed
 		  else{
@@ -359,7 +364,6 @@ int main(void)
 	  }
 	  else
 		  LCD_DrawString(50,200,"Impossible");
-
 //	  LCD_DrawEllipse(120,160,75,25,BLACK);
     /* USER CODE END WHILE */
 

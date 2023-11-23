@@ -60,9 +60,9 @@ extern "C" {
 /* USER CODE BEGIN 0 */
 
 WaterGun::currentInfoDisplay infoDisplay;
-reloadingProcess::Reload Reloadobj(500,0);
-shootingProcess::singleShot singleShotobj(500, 1000, 1000, 200);
-shootingProcess::continousShots continousShotsobj(500, 1000, 1000, 200);
+reloadingProcess::Reload Reloadobj(400,0);
+shootingProcess::singleShot singleShotobj(0, 1000, 500, 1000);
+shootingProcess::continousShots continousShotsobj(0, 700, 500, 1000);
 
 /* USER CODE END 0 */
 

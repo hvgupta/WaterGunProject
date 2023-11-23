@@ -20,6 +20,8 @@ namespace reloadingProcess{
             void gunReloading();
             void setTriggerState(bool on);
             bool getTriggerState();
+            mililitres getCurrentVolume();
+            void updateCurrentVolume(mililitres curVol);
     };
 
 }

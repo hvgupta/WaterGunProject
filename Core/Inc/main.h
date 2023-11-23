@@ -31,7 +31,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "lcd.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -63,6 +63,13 @@ typedef int degrees;
 
 /* Private defines -----------------------------------------------------------*/
 /* USER CODE BEGIN Private defines */
+#define Total_LEDs 20		//There are 30 leds, but we are only going to use the first 20 LEDs.
+extern uint8_t LEDs_Data[Total_LEDs][3];
+extern uint8_t LEDs_Data_Temp[Total_LEDs][3];	// For brightness
+void Set_LED (int LEDidx, int Red, int Green, int Blue);
+void Set_Brightness (int brightness);
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim);
+void WS2812B_LED_Data_Send();
 
 /* USER CODE END Private defines */
 
