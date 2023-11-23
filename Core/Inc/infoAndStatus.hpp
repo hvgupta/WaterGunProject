@@ -6,6 +6,7 @@
 #define INC_INFOANDSTATUS_HPP_
 #include "main.h"
 #include "lcd.h"
+#include <cstdio>
 
 namespace WaterGun{
 
@@ -16,21 +17,23 @@ namespace WaterGun{
 		CONTINIOUS_SHOOT_STATE
 	};
 
-	class currentInfoDisplay{
-		private:
-			mililitres Volume;
-			degrees Bearing;
-			degrees targetBearing;
-			STATUS status;
-			int batteryLevel;
-			meters closestObject;
-			
-		public:
-			currentInfoDisplay();
-			void displayInfo();
-			STATUS getStatus();
-			void changeStatus(STATUS);
+	struct currentInfoDisplay{
+		
+		mililitres Volume;
+		degrees Bearing;
+		degrees targetBearing;
+		STATUS status;
+		meters closestObject;
+
+		currentInfoDisplay();
+		void displayBasic();
+		void displayInfo();
+
 	};
+
+	void itos(const int,char*);
+	char* STATUSToString(const STATUS&);
+
 }
 
 

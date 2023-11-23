@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "reload.hpp"
 #include "main.h"
 #include "stdio.h"
@@ -119,3 +123,7 @@ namespace reloadingProcess{
     	this->currentVolume = curVol;
     }
 }
+
+#ifdef __cplusplus
+}
+#endif
