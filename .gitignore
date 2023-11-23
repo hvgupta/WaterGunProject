@@ -52,6 +52,7 @@ compile_commands.json
 # cubeMX files
 .settings/
 *.launch
+Drivers/
 
 # Folder view configuration files
 .DS_Store
