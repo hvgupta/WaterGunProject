@@ -299,7 +299,6 @@ uint16_t LCD_GetPointPixel ( uint16_t usCOLUMN, uint16_t usPAGE )
 }
 
 
-
 void LCD_DrawLine ( uint16_t usC1, uint16_t usP1, uint16_t usC2, uint16_t usP2, uint16_t usColor )
 {
 	uint16_t us; 
@@ -374,59 +373,43 @@ void LCD_DrawLine ( uint16_t usC1, uint16_t usP1, uint16_t usC2, uint16_t usP2, 
 
 void LCD_DrawChar ( uint16_t usC, uint16_t usP, const char cChar )
 {
-	uint8_t ucTemp, ucRelativePositon, ucPage, ucColumn;
+	uint8_t ucRelativePositon = cChar - ' ';
+	
+	
+	for (uint16_t ucColumn = usC; ucColumn < usC + HEIGHT_EN_CHAR; ucColumn++){
 
-	
-	ucRelativePositon = cChar - ' ';
-	
-	LCD_OpenWindow ( usC, usP, WIDTH_EN_CHAR, HEIGHT_EN_CHAR );
-	
-	LCD_Write_Cmd ( CMD_SetPixel );	
-	
-	for ( ucPage = 0; ucPage < HEIGHT_EN_CHAR; ucPage ++ )
-	{
-		ucTemp = ucAscii_1608 [ ucRelativePositon ] [ ucPage ];
-		
-		for ( ucColumn = 0; ucColumn < WIDTH_EN_CHAR; ucColumn ++ )
-		{
-			if ( ucTemp & 0x01 )
-				LCD_Write_Data ( 0x001F );
-			
-			else
-				LCD_Write_Data (  0xFFFF );								
-			
-			ucTemp >>= 1;		
-			
+		uint8_t colInfo = ucAscii_1608[ucRelativePositon][ucColumn-usC];
+
+		for (uint16_t ucPage = usP; ucPage > usP - WIDTH_EN_CHAR; ucPage--){
+			if (colInfo & 0x01){
+				LCD_DrawDot(ucColumn,ucPage,0x001F);
+			}
+			colInfo >>= 1;
 		}
-		
 	}
 	
 }
-
-
 
 
 void LCD_DrawString ( uint16_t usC, uint16_t usP, const char * pStr )
 {
 	while ( * pStr != '\0' )
 	{
-		if ( ( usC - LCD_DispWindow_Start_COLUMN + WIDTH_EN_CHAR ) > LCD_DispWindow_COLUMN )
+		if ((usC < 0) || (usC + HEIGHT_EN_CHAR >= LCD_Default_Max_COLUMN))
 		{
-			usC = LCD_DispWindow_Start_COLUMN;
-			usP += HEIGHT_EN_CHAR;
+			return;
 		}
 		
-		if ( ( usP - LCD_DispWindow_Start_PAGE + HEIGHT_EN_CHAR ) > LCD_DispWindow_PAGE )
+		if ((usP >= LCD_Default_Max_PAGE) || (usP - WIDTH_EN_CHAR < LCD_DispWindow_Start_PAGE))
 		{
-			usC = LCD_DispWindow_Start_COLUMN;
-			usP = LCD_DispWindow_Start_PAGE;
+			return;
 		}
 		
 		LCD_DrawChar ( usC, usP, * pStr );
 		
 		pStr ++;
 		
-		usC += WIDTH_EN_CHAR;
+		usP -= WIDTH_EN_CHAR;
 		
 	}
 	
