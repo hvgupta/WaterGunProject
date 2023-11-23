@@ -134,7 +134,8 @@ void WS2812B_LED_Data_Send()
 
 extern WaterGun::currentInfoDisplay infoDisplay;
 extern reloadingProcess::Reload Reloadobj;
-
+extern shootingProcess::singleShot singleShotobj;
+extern shootingProcess::continousShots continousShotsobj;
 /* USER CODE END 0 */
 
 /**
@@ -186,10 +187,7 @@ int main(void)
 	  const char* Name = "Gupta";
 	  LCD_DrawString(100,100,Name);
 
-//	  infoDisplay.changeStatus(WaterGun::STATUS::OFF_STATE);	//test, status should be change be interrupt using K1
-	  infoDisplay.changeStatus(WaterGun::STATUS::RELOAD_STATE);	//test, status should be change be interrupt using K1
-//	  infoDisplay.changeStatus(WaterGun::STATUS::SINGLE_SHOOT_STATE);	//test, status should be change be interrupt using K1
-//	  infoDisplay.changeStatus(WaterGun::STATUS::CONTINIOUS_SHOOT_STATE);	//test, status should be change be interrupt using K1
+	  //Note: shooting mode change using Key1 via interrupt
 
 	  WaterGun::STATUS curStatus = infoDisplay.getStatus();
 	  if (curStatus == WaterGun::STATUS::OFF_STATE){
@@ -233,6 +231,7 @@ int main(void)
 				  WS2812B_LED_Data_Send();
 				  HAL_Delay (77);
 			  }
+			  Reloadobj.gunReloading();
 		  }
 		  //If switch not yet pressed
 		  else{
@@ -256,28 +255,95 @@ int main(void)
 		  }
 	  }
 	  else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
-		  //LED shoot out motion
-		  for (int i=0; i<10+3; i++)
-		  {
-			  if (i<10){
-				  //Turn on head of leftmost LED
+		  //If switch is pressed
+		  if(singleShotobj.getTriggerState() == true){
+			  //LED shoot out motion
+			  for (int i=0; i<10+3; i++)
+			  {
+				  if (i<10){
+					  //Turn on head of leftmost LED
+					  Set_LED(i, 138, 43, 226);			//Blue-purple
+					  //Turn on head of rightmost LED
+					  Set_LED(19-i, 138, 43, 226);		//Blue-purple
+				  }
+				  if ( (i-3) >= 0 ){
+					  //Turn on tail of leftmost LED
+					  Set_LED(i-3, 0, 0, 0);
+					  //Turn off tail of rightmost LED
+					  Set_LED(19-i+3, 0, 0, 0);
+				  }
+				  Set_Brightness(70);
+				  WS2812B_LED_Data_Send();
+				  HAL_Delay (100);
+			  }
+			  singleShotobj.gunShotonce();
+			  singleShotobj.setTriggerState(false);
+		  }
+		  //If switch not yet pressed
+		  else{
+			  //LED reload motion (Breathing)
+			  for (int i=0; i<20; i++)
+			  {
 				  Set_LED(i, 138, 43, 226);			//Blue-purple
-				  //Turn on head of rightmost LED
-				  Set_LED(19-i, 138, 43, 226);		//Blue-purple
 			  }
-			  if ( (i-3) >= 0 ){
-				  //Turn on tail of leftmost LED
-				  Set_LED(i-3, 0, 0, 0);
-				  //Turn off tail of rightmost LED
-				  Set_LED(19-i+3, 0, 0, 0);
+			  for (int i=0; i<20; i++)
+			  {
+				  Set_Brightness(3*i);
+				  WS2812B_LED_Data_Send();
+				  HAL_Delay (25);
 			  }
-			  Set_Brightness(70);
-			  WS2812B_LED_Data_Send();
-			  HAL_Delay (100);
+			  for (int i=19; i>=0; i--)
+			  {
+				  Set_Brightness(3*i);
+				  WS2812B_LED_Data_Send();
+				  HAL_Delay (25);
+			  }
 		  }
 	  }
 	  else{	//CONTINIOUS_SHOOT_STATE
-		  /*Add here*/
+		  //If switch is pressed
+		  if (continousShotsobj.getTriggerState() == true){
+			  //LED shoot out motion
+			  for (int i=0; i<10+3; i++)
+			  {
+				  if (i<10){
+					  //Turn on head of leftmost LED
+					  Set_LED(i, 255, 105, 100);			//Pink
+					  //Turn on head of rightmost LED
+					  Set_LED(19-i, 255, 105, 100);			//Pink
+				  }
+				  if ( (i-3) >= 0 ){
+					  //Turn on tail of leftmost LED
+					  Set_LED(i-3, 0, 0, 0);
+					  //Turn off tail of rightmost LED
+					  Set_LED(19-i+3, 0, 0, 0);
+				  }
+				  Set_Brightness(70);
+				  WS2812B_LED_Data_Send();
+				  HAL_Delay (100);
+			  }
+			  continousShotsobj.gunShotcontinous();
+		  }
+		  //If switch not yet pressed
+		  else{
+			  //LED reload motion (Breathing)
+			  for (int i=0; i<20; i++)
+			  {
+				  Set_LED(i, 255, 105, 100);			//Pink
+			  }
+			  for (int i=0; i<20; i++)
+			  {
+				  Set_Brightness(3*i);
+				  WS2812B_LED_Data_Send();
+				  HAL_Delay (25);
+			  }
+			  for (int i=19; i>=0; i--)
+			  {
+				  Set_Brightness(3*i);
+				  WS2812B_LED_Data_Send();
+				  HAL_Delay (25);
+			  }
+		  }
 	  }
 	  GPIO_PinState pinUpperBottle = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_10);
 	  GPIO_PinState pinLowerBottle = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_11);
@@ -444,9 +510,9 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
@@ -457,6 +523,12 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PA0 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PD12 */
   GPIO_InitStruct.Pin = GPIO_PIN_12;
@@ -492,6 +564,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 

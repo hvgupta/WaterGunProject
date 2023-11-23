@@ -15,7 +15,7 @@ namespace reloadingProcess{
             const mililitres maxVolume;
 
         public:
-            Reload(const mililitres);
+            Reload(const mililitres, mililitres);
             bool reachedMaxAmount();
             void gunReloading();
             void setTriggerState(bool on);
