@@ -15,6 +15,9 @@
   *
   ******************************************************************************
   */
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -22,6 +25,9 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "infoAndStatus.hpp"
+#include "reload.hpp"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,7 +57,8 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+WaterGun::currentInfoDisplay infoDisplay;
+reloadingProcess::Reload Reloadobj(500);
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -222,8 +229,47 @@ void EXTI9_5_IRQHandler(void)
 	{
 		/*Switch code BEGIN*/
 
-		/*Don't write here, we should write to .cpp file instead*/
+		//Switch is pressed action
+		if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_9) ==  GPIO_PIN_RESET){
 
+			//Check current gun mode
+			WaterGun::STATUS curStatus = infoDisplay.getStatus();
+			if (curStatus == WaterGun::STATUS::OFF_STATE){
+				//Do nothing
+			}
+			else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
+				Reloadobj.setTriggerState(true);
+			  }
+			else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
+				/*Add here*/
+			}
+			else{								//CONTINIOUS_SHOOT_STATE
+				/*Add here*/
+			}
+
+			//Print
+			LCD_DrawString(50,150,"Switch on ");
+		}
+		//Switch is released action
+		else{
+			//Check current gun mode
+			WaterGun::STATUS curStatus = infoDisplay.getStatus();
+			if (curStatus == WaterGun::STATUS::OFF_STATE){
+				//Do nothing
+			}
+			else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
+				Reloadobj.setTriggerState(false);
+			  }
+			else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
+				/*Add here*/
+			}
+			else{								//CONTINIOUS_SHOOT_STATE
+				/*Add here*/
+			}
+
+			//Print
+			LCD_DrawString(50,150,"Switch off");
+		}
 		/*Switch code END*/
 		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
 		HAL_GPIO_EXTI_Callback(GPIO_PIN_8);
@@ -236,5 +282,8 @@ void EXTI9_5_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+#ifdef __cplusplus
+}
+#endif
 
 /* USER CODE END 1 */

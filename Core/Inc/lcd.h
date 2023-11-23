@@ -2,6 +2,7 @@
 #define	__LCD_H
 
 #include "stm32f1xx_hal.h"
+#include "stdint.h"
 
 #define      FSMC_Addr_LCD_CMD         ( ( uint32_t ) 0x60000000 )	    
 #define      FSMC_Addr_LCD_DATA        ( ( uint32_t ) 0x60020000 )          
