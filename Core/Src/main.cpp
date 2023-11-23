@@ -25,11 +25,13 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "lcd.h"
+
 #include "math.h"
 #include "aimAssist.hpp"
 #include "reload.hpp"
 #include "shooting.hpp"
 #include "infoAndStatus.hpp"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -39,6 +41,7 @@ extern "C" {
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+static WaterGun::currentInfoDisplay GunState;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -182,10 +185,10 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  GunState.displayBasic();
   while (1)
   {
-	  const char* Name = "Gupta";
-	  LCD_DrawString(100,100,Name);
+   GunState.displayInfo(); 
 
 	  //Note: shooting mode change using Key1 via interrupt
 

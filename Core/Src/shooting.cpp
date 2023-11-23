@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "shooting.hpp"
 
 namespace shootingProcess{
@@ -100,3 +104,8 @@ namespace shootingProcess{
     	}
     }
 }
+
+
+#ifdef __cplusplus
+}
+#endif
