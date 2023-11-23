@@ -30,6 +30,7 @@ extern "C" {
 #include "aimAssist.hpp"
 #include "reload.hpp"
 #include "shooting.hpp"
+#include "infoAndStatus.hpp"
 
 /* USER CODE END Includes */
 
@@ -186,8 +187,7 @@ int main(void)
   GunState.displayBasic();
   while (1)
   {
-	  const char* Name = "Gupta";
-	  LCD_DrawString(100,100,Name);
+   GunState.displayInfo(); 
 
 //	  infoDisplay.changeStatus(WaterGun::STATUS::OFF_STATE);	//test, status should be change be interrupt using K1
 	  infoDisplay.changeStatus(WaterGun::STATUS::RELOAD_STATE);	//test, status should be change be interrupt using K1

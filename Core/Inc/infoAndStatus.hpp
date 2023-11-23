@@ -17,26 +17,22 @@ namespace WaterGun{
 		CONTINIOUS_SHOOT_STATE
 	};
 
-	class currentInfoDisplay{
-		private:
-			mililitres Volume;
-			degrees Bearing;
-			degrees targetBearing;
-			STATUS status;
-			int batteryLevel;
-			meters closestObject;
+	struct currentInfoDisplay{
+		
+		mililitres Volume;
+		degrees Bearing;
+		degrees targetBearing;
+		STATUS status;
+		meters closestObject;
 
-		public:
-			currentInfoDisplay();
-			void displayBasic();
-			void displayInfo();
-			STATUS getStatus();
-			void changeStatus(STATUS);
+		currentInfoDisplay();
+		void displayBasic();
+		void displayInfo();
+
 	};
 
-	char* itos(const int,char*);
+	void itos(const int,char*);
 	char* STATUSToString(const STATUS&);
-
 
 }
 

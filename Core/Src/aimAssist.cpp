@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "aimAssist.hpp"
 
 namespace aimAssist{
@@ -56,3 +60,7 @@ namespace aimAssist{
     }
 
 }
+
+#ifdef __cplusplus
+}
+#endif

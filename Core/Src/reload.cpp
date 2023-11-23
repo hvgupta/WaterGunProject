@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "reload.hpp"
 
 namespace reloadingProcess{
@@ -54,3 +58,7 @@ namespace reloadingProcess{
     }
 
 }
+
+#ifdef __cplusplus
+}
+#endif
