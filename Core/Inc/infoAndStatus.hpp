@@ -30,6 +30,8 @@ namespace WaterGun{
 			currentInfoDisplay();
 			void displayBasic();
 			void displayInfo();
+			STATUS getStatus();
+			void changeStatus(STATUS);
 	};
 
 	char* itos(const int,char*);
