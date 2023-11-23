@@ -4,7 +4,7 @@
 *.o
 
 # Re-track the .o file from the Driver 
-!/RM2024-RDC-Core/Drivers/*.o
+/Drivers/*.o
 
 # Compiled Dynamic libraries
 *.so
@@ -52,7 +52,7 @@ compile_commands.json
 # cubeMX files
 .settings/
 *.launch
-Drivers/
+Debug/
 
 # Folder view configuration files
 .DS_Store
