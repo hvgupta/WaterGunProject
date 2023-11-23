@@ -12,12 +12,15 @@ namespace shootingProcess{
         private:
             const HAL_Ticks pulseTime;
             const int waterFlowRate;
-
+            mililitres currentVolume;
             bool triggerState;
 
         public:
-            shoot(const HAL_Ticks,const int);
-            bool enoughWater(const int&);
+            shoot(mililitres,const HAL_Ticks,const int);
+            bool enoughWater();
+            void setTriggerState(bool on);
+            bool getTriggerState();
+            HAL_Ticks getPulseTime();
     };
 
     class singleShot: public shoot{
@@ -26,7 +29,8 @@ namespace shootingProcess{
             const HAL_Ticks cooldownTime;
 
         public:
-            singleShot(const HAL_Ticks, const HAL_Ticks, const int);
+            singleShot(mililitres, const HAL_Ticks, const HAL_Ticks, const int);
+            void gunShotonce();
     };
 
     class continousShots: public shoot{
@@ -34,7 +38,8 @@ namespace shootingProcess{
             const HAL_Ticks delayBetween2Pulse;
 
         public:
-            continousShots(const HAL_Ticks, const HAL_Ticks, const int);
+            continousShots(mililitres, const HAL_Ticks, const HAL_Ticks, const int);
+            void gunShotcontinous();
     };
 
 
