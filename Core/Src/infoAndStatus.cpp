@@ -32,7 +32,12 @@ namespace WaterGun{
 
         LCD_DrawLine(34,319,34,0,0x0000); // hortizontal line for the header
                                             // The info will be between these two lines
-        LCD_DrawLine(54,319,54,0,0x0000); // hortizontal line for the info 
+        LCD_DrawLine(54,319,54,0,0x0000); // hortizontal line for the info
+
+        /*Added by zlashc START*/
+        LCD_DrawLine(220,319,220,0,0x0000); // hortizontal line for the Debug message, check if sensor works. Info will be below of this line
+        LCD_DrawLine(220,160,239,160,0x0000); // vertical line that divide the two Debug message.
+        /*Added by zlashc END*/
 
         /*
             Below are vertical lines which divide the table into columns
@@ -61,8 +66,11 @@ namespace WaterGun{
         /*
             The procedure will be to first clear out the entire cell and then update information
                 This is to ensure no visual bugs pertain.
-        */ 
-        char* toPrint;
+        */
+
+        //char* toPrint; //This line is commented by zlashc
+    	char toPrint[4]; //This line is added by zlashc
+
         itos(Volume,toPrint);
         LCD_Clear(35,271,18,48,0xffff);
         LCD_DrawString(35,318,toPrint);
@@ -88,7 +96,7 @@ namespace WaterGun{
         sprintf(buffer,"%03d",a);
     }
 
-    char* STATUSToString(const STATUS& status){
+    const char* STATUSToString(const STATUS& status){	//Modified by zlashc, return type change from char* to const char*
         switch (status)
         {
         case STATUS::OFF_STATE:

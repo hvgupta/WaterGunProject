@@ -138,6 +138,44 @@ extern WaterGun::currentInfoDisplay infoDisplay;
 extern reloadingProcess::Reload Reloadobj;
 extern shootingProcess::singleShot singleShotobj;
 extern shootingProcess::continousShots continousShotsobj;
+
+/**
+  * @brief This function handles EXTI line0 interrupt.
+  */
+void EXTI0_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI0_IRQn 0 */
+
+	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_0) != RESET)
+	{
+		/*Key1 code BEGIN*/
+		//Check current gun mode
+		WaterGun::STATUS curStatus = infoDisplay.status;
+		if (curStatus == WaterGun::STATUS::OFF_STATE){
+			infoDisplay.status = WaterGun::STATUS::RELOAD_STATE;	//Status changes by interrupt using K1
+		}
+		else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
+			infoDisplay.status = WaterGun::STATUS::SINGLE_SHOOT_STATE;
+		  }
+		else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
+			infoDisplay.status = WaterGun::STATUS::CONTINIOUS_SHOOT_STATE;
+		}
+		else{								//CONTINIOUS_SHOOT_STATE
+			infoDisplay.status = WaterGun::STATUS::OFF_STATE;
+		}
+		GunState.displayInfo();
+		/*Key1 code END*/
+		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+		HAL_GPIO_EXTI_Callback(GPIO_PIN_0);
+	}
+
+  /* USER CODE END EXTI0_IRQn 0 */
+ // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
+  /* USER CODE BEGIN EXTI0_IRQn 1 */
+
+  /* USER CODE END EXTI0_IRQn 1 */
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -185,12 +223,16 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   GunState.displayBasic();
+
   while (1)
   {
-	  GunState.displayInfo();
 
+	  GunState.displayInfo();
+	  /*Don't modify this START*/
 	  //Note: shooting mode change using Key1 via interrupt
 	  WaterGun::STATUS curStatus = infoDisplay.status;
+	  GunState.status = curStatus;
+	  GunState.displayInfo();
 	  if (curStatus == WaterGun::STATUS::OFF_STATE){
 		 //LED off state motion (Breathing)
 		  for (int i=0; i<20; i++)
@@ -235,6 +277,7 @@ int main(void)
 			  Reloadobj.gunReloading();
 			  singleShotobj.updateCurrentVolume(Reloadobj.getCurrentVolume());
 			  continousShotsobj.updateCurrentVolume(Reloadobj.getCurrentVolume());
+
 		  }
 		  //If switch not yet pressed
 		  else{
@@ -352,20 +395,27 @@ int main(void)
 			  }
 		  }
 	  }
+
+	  GunState.Volume = Reloadobj.getCurrentVolume()*100/400;	//Update the volume, note: CurrentVolume from reloadobj, continousShotsobj, singleShotobj are same.
+	  /*Don't modify this END*/
+
+	  /*Water level: bug testing code Start*/
 	  GPIO_PinState pinUpperBottle = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_10);
 	  GPIO_PinState pinLowerBottle = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_11);
-	  LCD_DrawString(50,200,"                ");
+	  LCD_Clear(222,318-16*8,16,16*8,0xffff);
 	  if (pinUpperBottle == GPIO_PIN_RESET && pinLowerBottle == GPIO_PIN_RESET){
-		  LCD_DrawString(50,200,"Water Full");
+		  LCD_DrawString(222,318,"Too much water");
 	  }
 	  else if(pinUpperBottle == GPIO_PIN_SET && pinLowerBottle == GPIO_PIN_RESET){
-		  LCD_DrawString(50,200,"Have some water");
+		  LCD_DrawString(222,318,"Have some water");
 	  }
 	  else if(pinUpperBottle == GPIO_PIN_SET && pinLowerBottle == GPIO_PIN_SET){
-		  LCD_DrawString(50,200,"Not enough water");
+		  LCD_DrawString(222,318,"Not enough water");
 	  }
 	  else
-		  LCD_DrawString(50,200,"Impossible");
+		  LCD_DrawString(222,356,"Impossible");
+	  /*Water level: bug testing code End*/
+
 //	  LCD_DrawEllipse(120,160,75,25,BLACK);
     /* USER CODE END WHILE */
 

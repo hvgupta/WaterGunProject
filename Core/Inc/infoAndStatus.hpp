@@ -32,7 +32,7 @@ namespace WaterGun{
 	};
 
 	void itos(const int,char*);
-	char* STATUSToString(const STATUS&);
+	const char* STATUSToString(const STATUS&);	//Modified by zlashc, return type changed from char* to const char*
 
 }
 

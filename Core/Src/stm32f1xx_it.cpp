@@ -210,42 +210,41 @@ void SysTick_Handler(void)
 /* please refer to the startup file (startup_stm32f1xx.s).                    */
 /******************************************************************************/
 
-/**
-  * @brief This function handles EXTI line0 interrupt.
-  */
-void EXTI0_IRQHandler(void)
-{
-  /* USER CODE BEGIN EXTI0_IRQn 0 */
-
-	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_0) != RESET)
-	{
-		/*Key1 code BEGIN*/
-		//Check current gun mode
-		WaterGun::STATUS curStatus = infoDisplay.status;
-
-		if (curStatus == WaterGun::STATUS::OFF_STATE){
-			infoDisplay.status = WaterGun::STATUS::RELOAD_STATE;	//Status changes by interrupt using K1
-		}
-		else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
-			infoDisplay.status = WaterGun::STATUS::SINGLE_SHOOT_STATE;
-		  }
-		else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
-			infoDisplay.status = WaterGun::STATUS::CONTINIOUS_SHOOT_STATE;
-		}
-		else{								//CONTINIOUS_SHOOT_STATE
-			infoDisplay.status = WaterGun::STATUS::OFF_STATE;
-		}
-		/*Key1 code END*/
-		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
-		HAL_GPIO_EXTI_Callback(GPIO_PIN_0);
-	}
-
-  /* USER CODE END EXTI0_IRQn 0 */
- // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
-  /* USER CODE BEGIN EXTI0_IRQn 1 */
-
-  /* USER CODE END EXTI0_IRQn 1 */
-}
+///**
+//  * @brief This function handles EXTI line0 interrupt.
+//  */
+//void EXTI0_IRQHandler(void)
+//{
+//  /* USER CODE BEGIN EXTI0_IRQn 0 */
+//
+//	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_0) != RESET)
+//	{
+//		/*Key1 code BEGIN*/
+//		//Check current gun mode
+//		WaterGun::STATUS curStatus = infoDisplay.status;
+//		if (curStatus == WaterGun::STATUS::OFF_STATE){
+//			infoDisplay.status = WaterGun::STATUS::RELOAD_STATE;	//Status changes by interrupt using K1
+//		}
+//		else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
+//			infoDisplay.status = WaterGun::STATUS::SINGLE_SHOOT_STATE;
+//		  }
+//		else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
+//			infoDisplay.status = WaterGun::STATUS::CONTINIOUS_SHOOT_STATE;
+//		}
+//		else{								//CONTINIOUS_SHOOT_STATE
+//			infoDisplay.status = WaterGun::STATUS::OFF_STATE;
+//		}
+//		/*Key1 code END*/
+//		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+//		HAL_GPIO_EXTI_Callback(GPIO_PIN_0);
+//	}
+//
+//  /* USER CODE END EXTI0_IRQn 0 */
+// // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
+//  /* USER CODE BEGIN EXTI0_IRQn 1 */
+//
+//  /* USER CODE END EXTI0_IRQn 1 */
+//}
 
 /**
   * @brief This function handles DMA1 channel2 global interrupt.
@@ -292,7 +291,8 @@ void EXTI9_5_IRQHandler(void)
 			}
 
 			//Print
-			LCD_DrawString(50,150,"Switch on ");
+			LCD_Clear(222,84-10*8,16,10*8,0xffff);
+			LCD_DrawString(222,84,"Switch on");
 		}
 		//Switch is released action
 		else{
@@ -314,7 +314,8 @@ void EXTI9_5_IRQHandler(void)
 			}
 
 			//Print
-			LCD_DrawString(50,150,"Switch off");
+			LCD_Clear(222,84-10*8,16,10*8,0xffff);
+			LCD_DrawString(222,84,"Switch off");
 		}
 		/*Switch code END*/
 		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);

@@ -5,6 +5,7 @@ extern "C" {
 #include "reload.hpp"
 #include "main.h"
 #include "stdio.h"
+#include "infoAndStatus.hpp"
 
 namespace reloadingProcess{
 
@@ -56,28 +57,23 @@ namespace reloadingProcess{
 			if (this->currentVolume > maxVolume){
 				this->currentVolume = maxVolume;
 			}
-			//Maybe update something LCD screen
-			/*add here*/
-			char str_vol[4];
-			sprintf(str_vol, "%d", this->currentVolume);
-			if(this->currentVolume/10 == 0){
-				str_vol[1]='_';
-				str_vol[2]='_';
-			}
-			else if(this->currentVolume/100 == 0){
-				str_vol[2]='_';
-			}
-			LCD_DrawString(50,250, str_vol);		//test
+			/*Test: Not favourable but allow dynamically changing the water level*/
+			char toPrint[4]; //This line is added by zlashc
+	        WaterGun::itos(this->currentVolume*100/400,toPrint);
+	        LCD_Clear(35,271,18,48,0xffff);
+	        LCD_DrawString(35,318,toPrint);
+			/*End*/
 
 		}
     	//Turn off the reloading water pump
     	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);		//In3 off
+
     	if (reachedMaxAmount()){
     		//Remind that water is full (LED set to green)
 			//LED warning motion (Breathing)
 			for (int i=0; i<20; i++)
 			{
-				Set_LED(i, 20, 255, 40);			//RED
+				Set_LED(i, 20, 255, 40);			//Green
 			}
 			for (int i=0; i<20; i++)
 			{
@@ -91,18 +87,7 @@ namespace reloadingProcess{
 			  WS2812B_LED_Data_Send();
 			  HAL_Delay (25);
 			}
-			//Maybe update something LCD screen
-			/*add here*/
-			char str_vol[4];
-			sprintf(str_vol, "%d", this->currentVolume);
-			if(this->currentVolume/10 == 0){
-				str_vol[1]='_';
-				str_vol[2]='_';
-			}
-			else if(this->currentVolume/100 == 0){
-				str_vol[2]='_';
-			}
-			LCD_DrawString(50,250, str_vol);		//test
+
     	}
     }
     void Reload::setTriggerState(bool on){

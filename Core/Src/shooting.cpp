@@ -5,6 +5,7 @@ extern "C" {
 #include "shooting.hpp"
 #include "main.h"
 #include <stdio.h>
+#include "infoAndStatus.hpp"
 
 namespace shootingProcess{
 
@@ -78,18 +79,12 @@ namespace shootingProcess{
 				int Vafter = this->currentVolume - waterFlowRate/(60*(1000/getPulseTime()));
 				this->currentVolume = (Vafter < 0 )? 0 : Vafter;
 
-				//Maybe update something LCD screen
-				/*add here*/
-				char str_vol[4];
-				sprintf(str_vol, "%d", getCurrentVolume());
-				if(getCurrentVolume()/10 == 0){
-					str_vol[1]='_';
-					str_vol[2]='_';
-				}
-				else if(getCurrentVolume()/100 == 0){
-					str_vol[2]='_';
-				}
-				LCD_DrawString(50,250, str_vol);		//test
+				/*Test: Not favourable but allow dynamically changing the water level*/
+				char toPrint[4]; //This line is added by zlashc
+		        WaterGun::itos(this->currentVolume*100/400,toPrint);
+		        LCD_Clear(35,271,18,48,0xffff);
+		        LCD_DrawString(35,318,toPrint);
+				/*End*/
 
 				//Turn off the shooting water pump
 				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);		//In1 off
@@ -113,18 +108,6 @@ namespace shootingProcess{
 				  WS2812B_LED_Data_Send();
 				  HAL_Delay (25);
 				}
-				//Maybe update something LCD screen
-				/*add here*/
-				char str_vol[4];
-				sprintf(str_vol, "%d", this->currentVolume);
-				if(this->currentVolume/10 == 0){
-					str_vol[1]='_';
-					str_vol[2]='_';
-				}
-				else if(this->currentVolume/100 == 0){
-					str_vol[2]='_';
-				}
-				LCD_DrawString(50,250, str_vol);		//test
     		}
     	}
     }
@@ -165,18 +148,14 @@ namespace shootingProcess{
 				//Update currentVolume
 				int Vafter = this->currentVolume - waterFlowRate/(60*(1000/getPulseTime()));
 				this->currentVolume = (Vafter < 0 )? 0 : Vafter;
-				//Maybe update something LCD screen
-				/*add here*/
-				char str_vol[4];
-				sprintf(str_vol, "%d", this->getCurrentVolume());
-				if(getCurrentVolume()/10 == 0){
-					str_vol[1]='_';
-					str_vol[2]='_';
-				}
-				else if(getCurrentVolume()/100 == 0){
-					str_vol[2]='_';
-				}
-				LCD_DrawString(50,250, str_vol);		//test
+
+				/*Test: Not favourable but allow dynamically changing the water level*/
+				char toPrint[4]; //This line is added by zlashc
+		        WaterGun::itos(this->currentVolume*100/400,toPrint);
+		        LCD_Clear(35,271,18,48,0xffff);
+		        LCD_DrawString(35,318,toPrint);
+				/*End*/
+
 				//Turn off the shooting water pump
 				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);		//In3 off
 				HAL_Delay(this->delayBetween2Pulse);
@@ -201,18 +180,12 @@ namespace shootingProcess{
 				  HAL_Delay (25);
 				}
 
-				//Maybe update something LCD screen
-				/*add here*/
-				char str_vol[4];
-				sprintf(str_vol, "%d", this->currentVolume);
-				if(this->currentVolume/10 == 0){
-					str_vol[1]='_';
-					str_vol[2]='_';
-				}
-				else if(this->currentVolume/100 == 0){
-					str_vol[2]='_';
-				}
-				LCD_DrawString(50,250, str_vol);		//test
+				/*Test: Not favourable but allow dynamically changing the water level*/
+				char toPrint[4]; //This line is added by zlashc
+		        WaterGun::itos(this->currentVolume*100/400,toPrint);
+		        LCD_Clear(35,271,18,48,0xffff);
+		        LCD_DrawString(35,318,toPrint);
+				/*End*/
     		}
     	}
     }
