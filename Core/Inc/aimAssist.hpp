@@ -13,15 +13,17 @@ namespace aimAssist{
 
     class aimAssist{
         private:
+            degrees lastBearing;
             degrees currentBearing;
             degrees targetBearing;
             meters d1;
-            meters d0;
+            meters d2;
             degrees theta;
         public:
             aimAssist();
-            degrees predictNext();
-            void calculateD0andD1();
+            void updateD0D1(const meters*);
+            degrees predictNext(const HAL_Ticks);
+        
     };
 }
 
