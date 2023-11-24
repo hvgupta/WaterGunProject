@@ -21,12 +21,8 @@ namespace aimAssist{
         public:
             aimAssist();
             degrees predictNext();
+            void calculateD0andD1();
     };
-
-    float sine(int);
-    float cosine(int);
-    float power(float,int);
-    int fact(int);
 }
 
 

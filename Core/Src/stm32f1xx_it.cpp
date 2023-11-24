@@ -59,10 +59,10 @@ extern "C" {
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-WaterGun::currentInfoDisplay infoDisplay;
-reloadingProcess::Reload Reloadobj(500,0);
-shootingProcess::singleShot singleShotobj(500, 1000, 1000, 200);
-shootingProcess::continousShots continousShotsobj(500, 1000, 1000, 200);
+// WaterGun::currentInfoDisplay infoDisplay;
+// reloadingProcess::Reload Reloadobj(400,0);
+// shootingProcess::singleShot singleShotobj(0, 1000, 500, 1200);
+// shootingProcess::continousShots continousShotsobj(0, 700, 500, 1200);
 
 /* USER CODE END 0 */
 
@@ -211,40 +211,41 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief This function handles EXTI line0 interrupt.
+  * @brief This function handles EXTI line0 interrupt. 
+  * 
   */
-void EXTI0_IRQHandler(void)
+__weak void EXTI0_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI0_IRQn 0 */
 
-	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_0) != RESET)
-	{
-		/*Key1 code BEGIN*/
-		//Check current gun mode
-		WaterGun::STATUS curStatus = infoDisplay.getStatus();
+// 	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_0) != RESET)
+// 	{
+// 		/*Key1 code BEGIN*/
+// 		//Check current gun mode
+// 		WaterGun::STATUS curStatus = infoDisplay.status;
 
-		if (curStatus == WaterGun::STATUS::OFF_STATE){
-			infoDisplay.changeStatus(WaterGun::STATUS::RELOAD_STATE);	//Status changes by interrupt using K1
-		}
-		else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
-			infoDisplay.changeStatus(WaterGun::STATUS::SINGLE_SHOOT_STATE);
-		  }
-		else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
-			infoDisplay.changeStatus(WaterGun::STATUS::CONTINIOUS_SHOOT_STATE);
-		}
-		else{								//CONTINIOUS_SHOOT_STATE
-			infoDisplay.changeStatus(WaterGun::STATUS::OFF_STATE);
-		}
-		/*Key1 code END*/
-		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
-		HAL_GPIO_EXTI_Callback(GPIO_PIN_0);
-	}
+// 		if (curStatus == WaterGun::STATUS::OFF_STATE){
+// 			infoDisplay.status = WaterGun::STATUS::RELOAD_STATE;	//Status changes by interrupt using K1
+// 		}
+// 		else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
+// 			infoDisplay.status = WaterGun::STATUS::SINGLE_SHOOT_STATE;
+// 		  }
+// 		else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
+// 			infoDisplay.status = WaterGun::STATUS::CONTINIOUS_SHOOT_STATE;
+// 		}
+// 		else{								//CONTINIOUS_SHOOT_STATE
+// 			infoDisplay.status = WaterGun::STATUS::OFF_STATE;
+// 		}
+// 		/*Key1 code END*/
+// 		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+// 		HAL_GPIO_EXTI_Callback(GPIO_PIN_0);
+// 	}
 
-  /* USER CODE END EXTI0_IRQn 0 */
- // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
-  /* USER CODE BEGIN EXTI0_IRQn 1 */
+//   /* USER CODE END EXTI0_IRQn 0 */
+//  // HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
+//   /* USER CODE BEGIN EXTI0_IRQn 1 */
 
-  /* USER CODE END EXTI0_IRQn 1 */
+//   /* USER CODE END EXTI0_IRQn 1 */
 }
 
 /**
@@ -267,64 +268,64 @@ void DMA1_Channel2_IRQHandler(void)
 void EXTI9_5_IRQHandler(void)
 {
 	/* USER CODE BEGIN EXTI9_5_IRQn 0 */
-	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET)
-	{
-		/*Switch code BEGIN*/
+// 	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET)
+// 	{
+// 		/*Switch code BEGIN*/
 
-		//Switch is pressed action
-		if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_9) ==  GPIO_PIN_RESET){
+// 		//Switch is pressed action
+// 		if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_9) ==  GPIO_PIN_RESET){
 
-			//Check current gun mode
-			WaterGun::STATUS curStatus = infoDisplay.getStatus();
-			if (curStatus == WaterGun::STATUS::OFF_STATE){
-				//Do nothing
-			}
-			else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
-				Reloadobj.setTriggerState(true);
-			  }
-			else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
-				/*Add here*/
-				singleShotobj.setTriggerState(true);
-			}
-			else{								//CONTINIOUS_SHOOT_STATE
-				/*Add here*/
-				continousShotsobj.setTriggerState(true);
-			}
+// 			//Check current gun mode
+// 			WaterGun::STATUS curStatus = infoDisplay.status;
+// 			if (curStatus == WaterGun::STATUS::OFF_STATE){
+// 				//Do nothing
+// 			}
+// 			else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
+// 				Reloadobj.setTriggerState(true);
+// 			  }
+// 			else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
+// 				/*Add here*/
+// 				singleShotobj.setTriggerState(true);
+// 			}
+// 			else{								//CONTINIOUS_SHOOT_STATE
+// 				/*Add here*/
+// 				continousShotsobj.setTriggerState(true);
+// 			}
 
-			//Print
-			LCD_DrawString(50,150,"Switch on ");
-		}
-		//Switch is released action
-		else{
-			//Check current gun mode
-			WaterGun::STATUS curStatus = infoDisplay.getStatus();
-			if (curStatus == WaterGun::STATUS::OFF_STATE){
-				//Do nothing
-			}
-			else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
-				Reloadobj.setTriggerState(false);
-			  }
-			else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
-				/*Add here*/
-				singleShotobj.setTriggerState(false);
-			}
-			else{								//CONTINIOUS_SHOOT_STATE
-				/*Add here*/
-				continousShotsobj.setTriggerState(false);
-			}
+// 			//Print
+// 			LCD_DrawString(50,150,"Switch on ");
+// 		}
+// 		//Switch is released action
+// 		else{
+// 			//Check current gun mode
+// 			WaterGun::STATUS curStatus = infoDisplay.status;
+// 			if (curStatus == WaterGun::STATUS::OFF_STATE){
+// 				//Do nothing
+// 			}
+// 			else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
+// 				Reloadobj.setTriggerState(false);
+// 			  }
+// 			else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
+// 				/*Add here*/
+// 				singleShotobj.setTriggerState(false);
+// 			}
+// 			else{								//CONTINIOUS_SHOOT_STATE
+// 				/*Add here*/
+// 				continousShotsobj.setTriggerState(false);
+// 			}
 
-			//Print
-			LCD_DrawString(50,150,"Switch off");
-		}
-		/*Switch code END*/
-		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
-		HAL_GPIO_EXTI_Callback(GPIO_PIN_8);
-	}
-	/* USER CODE END EXTI9_5_IRQn 0 */
-  //HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
-  /* USER CODE BEGIN EXTI9_5_IRQn 1 */
+// 			//Print
+// 			LCD_DrawString(50,150,"Switch off");
+// 		}
+// 		/*Switch code END*/
+// 		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
+// 		HAL_GPIO_EXTI_Callback(GPIO_PIN_8);
+// 	}
+// 	/* USER CODE END EXTI9_5_IRQn 0 */
+//   //HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
+//   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
 
-  /* USER CODE END EXTI9_5_IRQn 1 */
+//   /* USER CODE END EXTI9_5_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

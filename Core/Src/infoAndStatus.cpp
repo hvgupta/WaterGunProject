@@ -7,6 +7,7 @@ extern "C" {
 namespace WaterGun{
     /* Declaration of all the currentInfoDisplay class functions */
 
+
     currentInfoDisplay::currentInfoDisplay(){
         Volume = 100;
         Bearing = 0;
@@ -83,6 +84,12 @@ namespace WaterGun{
 
     /* End of the declaration of class functions */
 
+	static uint32_t IC_Val1 = 0;
+	static uint32_t IC_Val2 = 0;
+	static uint32_t Difference = 0;
+	static uint8_t Is_First_Captured = 0;  // is the first value captured ?
+	static uint8_t Distance  = 0;
+
     // converts a given integer into char*
     void itos(const int a, char* buffer){
         sprintf(buffer,"%03d",a);
@@ -104,7 +111,16 @@ namespace WaterGun{
         }
     }
 
+    void HCSR04_Read (void)
+    {
+        HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_SET);  // pull the TRIG pin HIGH
+        delay(10);  // wait for 10 us
+        HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_RESET);  // pull the TRIG pin low
+
+        __HAL_TIM_ENABLE_IT(&htim1, TIM_IT_CC2);
     }
+
+}
 
 #ifdef __cplusplus
 }

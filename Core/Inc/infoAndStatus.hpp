@@ -8,6 +8,9 @@
 #include "lcd.h"
 #include <cstdio>
 
+#define TRIG_PIN GPIO_PIN_11
+#define TRIG_PORT GPIOA
+
 namespace WaterGun{
 
 	enum class STATUS{
@@ -34,6 +37,9 @@ namespace WaterGun{
 	void itos(const int,char*);
 	char* STATUSToString(const STATUS&);
 
+	void delay(const int);
+	void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef*);
+	void HCSR04_Read();
 }
 
 

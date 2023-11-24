@@ -9,7 +9,7 @@
 namespace shootingProcess{
 
     class shoot{
-        private:
+        protected:
             const HAL_Ticks pulseTime;
             const int waterFlowRate;
             mililitres currentVolume;
@@ -21,6 +21,8 @@ namespace shootingProcess{
             void setTriggerState(bool on);
             bool getTriggerState();
             HAL_Ticks getPulseTime();
+            mililitres getCurrentVolume();
+            void updateCurrentVolume(mililitres curVol);
     };
 
     class singleShot: public shoot{
