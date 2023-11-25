@@ -7,6 +7,7 @@ extern "C" {
 namespace WaterGun{
     /* Declaration of all the currentInfoDisplay class functions */
 
+
     currentInfoDisplay::currentInfoDisplay(){
         Volume = 100;
         Bearing = 0;
@@ -32,12 +33,7 @@ namespace WaterGun{
 
         LCD_DrawLine(34,319,34,0,0x0000); // hortizontal line for the header
                                             // The info will be between these two lines
-        LCD_DrawLine(54,319,54,0,0x0000); // hortizontal line for the info
-
-        /*Added by zlashc START*/
-        LCD_DrawLine(220,319,220,0,0x0000); // hortizontal line for the Debug message, check if sensor works. Info will be below of this line
-        LCD_DrawLine(220,160,239,160,0x0000); // vertical line that divide the two Debug message.
-        /*Added by zlashc END*/
+        LCD_DrawLine(54,319,54,0,0x0000); // hortizontal line for the info 
 
         /*
             Below are vertical lines which divide the table into columns
@@ -66,11 +62,8 @@ namespace WaterGun{
         /*
             The procedure will be to first clear out the entire cell and then update information
                 This is to ensure no visual bugs pertain.
-        */
-
-        //char* toPrint; //This line is commented by zlashc
-    	char toPrint[4]; //This line is added by zlashc
-
+        */ 
+        char* toPrint;
         itos(Volume,toPrint);
         LCD_Clear(35,271,18,48,0xffff);
         LCD_DrawString(35,318,toPrint);
@@ -91,12 +84,18 @@ namespace WaterGun{
 
     /* End of the declaration of class functions */
 
+	static uint32_t IC_Val1 = 0;
+	static uint32_t IC_Val2 = 0;
+	static uint32_t Difference = 0;
+	static uint8_t Is_First_Captured = 0;  // is the first value captured ?
+	static uint8_t Distance  = 0;
+
     // converts a given integer into char*
     void itos(const int a, char* buffer){
         sprintf(buffer,"%03d",a);
     }
 
-    const char* STATUSToString(const STATUS& status){	//Modified by zlashc, return type change from char* to const char*
+    char* STATUSToString(const STATUS& status){
         switch (status)
         {
         case STATUS::OFF_STATE:
@@ -112,7 +111,7 @@ namespace WaterGun{
         }
     }
 
-    }
+}
 
 #ifdef __cplusplus
 }

@@ -8,6 +8,9 @@
 #include "lcd.h"
 #include <cstdio>
 
+#define TRIG_PIN GPIO_PIN_11
+#define TRIG_PORT GPIOA
+
 namespace WaterGun{
 
 	enum class STATUS{
@@ -32,8 +35,9 @@ namespace WaterGun{
 	};
 
 	void itos(const int,char*);
-	const char* STATUSToString(const STATUS&);	//Modified by zlashc, return type changed from char* to const char*
+	char* STATUSToString(const STATUS&);
 
+	void delay(const int);
 }
 
 

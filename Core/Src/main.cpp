@@ -219,7 +219,7 @@ int main(void)
   DEBUG_DELAY();
 
   /* USER CODE END 2 */
-
+  HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_2);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   GunState.displayBasic();

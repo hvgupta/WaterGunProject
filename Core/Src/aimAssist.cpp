@@ -9,54 +9,37 @@ namespace aimAssist{
     /* The defination of aimAssist memeber functions begin here */
 
     aimAssist::aimAssist(){
+        lastBearing = 0;
         currentBearing = 0;
         targetBearing = 0;
         d1 = 0;
-        d0 = 0;
-        theta = 0;
+        d2 = 0;
+        measureTime = 0;
     }
 
+    void aimAssist::updateD0D1(const meters d1d2[2]){
+        d1 = d1d2[0];
+        d2 = d1d2[1];
+    }
+
+    degrees aimAssist::predictNext(const HAL_Ticks elapsedTime){
+        float theta = (currentBearing - lastBearing)*M_PI/180.0;
+        float d0 = sqrt((float)(d1*d1 + d2*d2) - 2*d1*d2*cos(theta));
+        float phi = acos(((d1*d1 + d0*d0 - d2*d2)/(2*d1*d0)));
+        float multiple = (d0/measureTime)*(elapsedTime);
+        float b = 2.0*multiple*d2*cos(theta+phi);
+        float d3 = (-0.5)*(b+sqrt(b*b-4*(1-multiple)*(-d2*d2))); // quadratic
+        targetBearing = acos((d3*d3 + d2*d2 - (multiple*d3)*(multiple*d3))/(2*d3*d2))*M_PI/180.0;
+    }
+
+    
     /* The end of the declaration of the aimAssist member function  */
+    void HCSR04_Read (void){
+        HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_SET);  // pull the TRIG pin HIGH
+        delay(10);  // wait for 10 us
+        HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_RESET);  // pull the TRIG pin low
 
-    float sine(int deg) {
-        deg %= 360; // make it less than 360
-        float rad = deg * PI / 180;
-        float sin = 0;
-
-        int i;
-        for(i = 0; i < TERMS; i++) { // That's Taylor series!!
-            sin += power(-1, i) * power(rad, 2 * i + 1) / fact(2 * i + 1);
-        }
-        return sin;
-    }
-
-    float cosine(int deg) {
-        deg %= 360; // make it less than 360
-        float rad = deg * PI / 180;
-        float cos = 0;
-
-        int i;
-        for(i = 0; i < TERMS; i++) { // That's also Taylor series!!
-            cos += power(-1, i) * power(rad, 2 * i) / fact(2 * i);
-        }
-        return cos;
-    }
-
-    float power(float base, int exp) {
-        if(exp < 0) {
-            if(base == 0)
-                return -0; // Error!!
-            return 1 / (base * power(base, (-exp) - 1));
-        }
-        if(exp == 0)
-            return 1;
-        if(exp == 1)
-            return base;
-        return base * power(base, exp - 1);
-    }
-
-    int fact(int n) {
-        return n <= 0 ? 1 : n * fact(n-1);
+        __HAL_TIM_ENABLE_IT(&htim1, TIM_IT_CC2);
     }
 
 }
