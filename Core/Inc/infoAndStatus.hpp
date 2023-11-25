@@ -26,7 +26,7 @@ namespace WaterGun{
 		degrees Bearing;
 		degrees targetBearing;
 		STATUS status;
-		meters closestObject;
+		centimeters closestObject;
 
 		currentInfoDisplay();
 		void displayBasic();

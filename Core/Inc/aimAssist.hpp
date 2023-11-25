@@ -6,27 +6,34 @@
 #define INC_AIMASSIT_HPP_
 #include "main.h"
 
-#define TRIG_PIN GPIO_PIN_11
+#define TRIG_PIN GPIO_PIN_10
 #define TRIG_PORT GPIOA
 
 namespace aimAssist{
 
     class aimAssist{
         private:
-            degrees lastBearing;
+            degrees referenceBearing;
             degrees currentBearing;
             degrees targetBearing;
-            meters d1;
-            meters d2;
+            centimeters d1;
+            centimeters d2;
             HAL_Ticks measureTime;
+            bool isScndCapture;
 
         public:
             aimAssist();
-            void updateD0D1(const meters*);
-            degrees predictNext(const HAL_Ticks);
-            void HCSR04_Read (TIM_HandleTypeDef*);
-    };
+            
+            void updateD1D2(const centimeters);
+            void D1D2Reset();
 
+            degrees predictNext(const HAL_Ticks);
+
+            bool& currentFlag();
+
+            centimeters getCurrentDist();
+    };
+    void HCSR04_Read (TIM_HandleTypeDef* htim);
     void delay(TIM_HandleTypeDef*,const int);
 }
 

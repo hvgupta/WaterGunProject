@@ -20,8 +20,6 @@
 *.lst
 *.rd
 *.mapf
-*.list
-*.map
 
 # Debug files
 *.dSYM/
@@ -52,7 +50,7 @@ compile_commands.json
 # cubeMX files
 .settings/
 *.launch
-Debug/
+Debug/*
 
 # Folder view configuration files
 .DS_Store

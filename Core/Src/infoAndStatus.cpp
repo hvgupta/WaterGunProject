@@ -84,12 +84,6 @@ namespace WaterGun{
 
     /* End of the declaration of class functions */
 
-	static uint32_t IC_Val1 = 0;
-	static uint32_t IC_Val2 = 0;
-	static uint32_t Difference = 0;
-	static uint8_t Is_First_Captured = 0;  // is the first value captured ?
-	static uint8_t Distance  = 0;
-
     // converts a given integer into char*
     void itos(const int a, char* buffer){
         sprintf(buffer,"%03d",a);

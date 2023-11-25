@@ -58,7 +58,7 @@ void Error_Handler(void);
 /* USER CODE BEGIN EFP */
 typedef unsigned int HAL_Ticks;
 typedef unsigned int mililitres;
-typedef unsigned int meters;
+typedef unsigned int centimeters;
 typedef int degrees;
 /* USER CODE END EFP */
 
