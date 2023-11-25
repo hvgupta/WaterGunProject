@@ -24,8 +24,10 @@ namespace aimAssist{
             aimAssist();
             void updateD0D1(const meters*);
             degrees predictNext(const HAL_Ticks);
-            void HCSR04_Read (void);
+            void HCSR04_Read (TIM_HandleTypeDef*);
     };
+
+    void delay(TIM_HandleTypeDef*,const int);
 }
 
 

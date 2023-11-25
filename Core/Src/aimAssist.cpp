@@ -34,12 +34,17 @@ namespace aimAssist{
 
     
     /* The end of the declaration of the aimAssist member function  */
-    void HCSR04_Read (void){
+    void aimAssist::HCSR04_Read (TIM_HandleTypeDef* htim){
         HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_SET);  // pull the TRIG pin HIGH
-        delay(10);  // wait for 10 us
+        delay(htim,10);  // wait for 10 us
         HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_RESET);  // pull the TRIG pin low
 
-        __HAL_TIM_ENABLE_IT(&htim1, TIM_IT_CC2);
+        __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC2);
+    }
+
+    void delay(TIM_HandleTypeDef* htim,const int time){
+        __HAL_TIM_SET_COUNTER(htim,0);
+        while(__HAL_TIM_GET_COUNTER (htim) < time);
     }
 
 }

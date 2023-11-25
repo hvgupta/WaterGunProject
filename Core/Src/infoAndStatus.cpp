@@ -63,7 +63,7 @@ namespace WaterGun{
             The procedure will be to first clear out the entire cell and then update information
                 This is to ensure no visual bugs pertain.
         */ 
-        char* toPrint;
+        char toPrint[3];
         itos(Volume,toPrint);
         LCD_Clear(35,271,18,48,0xffff);
         LCD_DrawString(35,318,toPrint);
