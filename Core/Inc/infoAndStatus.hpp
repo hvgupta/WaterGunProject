@@ -8,7 +8,7 @@
 #include "lcd.h"
 #include <cstdio>
 
-#define TRIG_PIN GPIO_PIN_11
+#define TRIG_PIN GPIO_PIN_10
 #define TRIG_PORT GPIOA
 
 namespace WaterGun{

@@ -33,8 +33,8 @@ namespace aimAssist{
 
             centimeters getCurrentDist();
     };
-    void HCSR04_Read (TIM_HandleTypeDef* htim);
-    void delay(TIM_HandleTypeDef*,const int);
+    // void HCSR04_Read (TIM_HandleTypeDef* htim);
+    // void delay(TIM_HandleTypeDef*,const int);
 }
 
 

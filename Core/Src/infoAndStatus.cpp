@@ -72,12 +72,15 @@ namespace WaterGun{
         LCD_DrawString(35, 269, STATUSToString(status));
 
         itos(Bearing,toPrint);
+        LCD_Clear(35,135,18,70,0xffff);
         LCD_DrawString(35,205,toPrint);
 
         itos(targetBearing,toPrint);
+        LCD_Clear(35,63,18,70,0xffff);
         LCD_DrawString(35,133,toPrint);
 
         itos(closestObject,toPrint);
+        LCD_Clear(35,0,18,61,0xffff);
         LCD_DrawString(35,61,toPrint);
 
     }

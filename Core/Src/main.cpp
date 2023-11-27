@@ -51,7 +51,7 @@ static WaterGun::currentInfoDisplay GunState;
 
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim1;
-TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim8;
 DMA_HandleTypeDef hdma_tim1_ch1;
 
 SRAM_HandleTypeDef hsram1;
@@ -66,7 +66,7 @@ static void MX_GPIO_Init(void);
 static void MX_FSMC_Init(void);
 static void MX_DMA_Init(void);
 static void MX_TIM1_Init(void);
-static void MX_TIM2_Init(void);
+static void MX_TIM8_Init(void);
 static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
 bool distMeasureFlag = false;
@@ -79,6 +79,12 @@ bool distMeasureFlag = false;
 uint8_t LEDs_Data[Total_LEDs][3];
 uint8_t LEDs_Data_Temp[Total_LEDs][3];	// For brightness
 int dataSent_Finish = 0;				// Flag for DMA control
+
+extern WaterGun::currentInfoDisplay infoDisplay;
+extern reloadingProcess::Reload Reloadobj;
+extern shootingProcess::singleShot singleShotobj;
+extern shootingProcess::continousShots continousShotsobj;
+aimAssist::aimAssist aimassist;
 
 void Set_LED (int LEDidx, int Red, int Green, int Blue){	//0-255 scale
 	LEDs_Data[LEDidx][0] = Green;
@@ -137,17 +143,11 @@ void WS2812B_LED_Data_Send()
 }
 /*LED Related END*/
 
-extern WaterGun::currentInfoDisplay infoDisplay;
-extern reloadingProcess::Reload Reloadobj;
-extern shootingProcess::singleShot singleShotobj;
-extern shootingProcess::continousShots continousShotsobj;
-aimAssist::aimAssist aimassist;
-
 uint32_t IC_Val1 = 0;
 uint8_t Distance = 0;
 
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
-{
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
+
 	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)  // if the interrupt source is channel1
 	{
 		if (!aimassist.currentFlag()) // if the first value is not captured
@@ -175,11 +175,23 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 
 			// set polarity to rising edge
 			__HAL_TIM_SET_CAPTUREPOLARITY(htim, TIM_CHANNEL_2, TIM_INPUTCHANNELPOLARITY_RISING);
-			__HAL_TIM_DISABLE_IT(&htim1, TIM_IT_CC2);
+			__HAL_TIM_DISABLE_IT(htim, TIM_IT_CC2);
 		}
 	}
 }
 
+void delay(TIM_HandleTypeDef* htim,const int time){
+    __HAL_TIM_SET_COUNTER(htim,0);
+    while(__HAL_TIM_GET_COUNTER (htim) < time);
+}
+
+void HCSR04_Read (TIM_HandleTypeDef* htim){
+    HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_SET);  // pull the TRIG pin HIGH
+    delay(htim,10);  // wait for 10 us
+    HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_RESET);  // pull the TRIG pin low
+
+    __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC2);
+}
 /**
   * @brief This function handles EXTI line0 interrupt.
   */
@@ -252,11 +264,12 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_FSMC_Init();
+  MX_DMA_Init();
   MX_TIM1_Init();
-  MX_TIM2_Init();
+  MX_TIM8_Init();
 
+  /* Initialize interrupts */
   /* USER CODE BEGIN 2 */
   MX_NVIC_Init();
   LCD_INIT();
@@ -268,7 +281,7 @@ int main(void)
   DEBUG_DELAY();
 
   /* USER CODE END 2 */
-  HAL_TIM_IC_Start_IT(&htim2,TIM_CHANNEL_3);
+  HAL_TIM_IC_Start_IT(&htim8,TIM_CHANNEL_2);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   GunState.displayBasic();
@@ -278,16 +291,18 @@ int main(void)
     aimassist.D1D2Reset();
     if (distMeasureFlag){
         distMeasureFlag = false;
-        aimAssist::HCSR04_Read(&htim2);
-        HAL_Delay(200);
-        aimAssist::HCSR04_Read(&htim2);
-        HAL_Delay(200);
+        HCSR04_Read(&htim8);
+        HAL_Delay(50);
+        HCSR04_Read(&htim8);
+        HAL_Delay(50);
     }
     else{
-        aimAssist::HCSR04_Read(&htim2);
-        HAL_Delay(200);
-        GunState.closestObject = aimassist.getCurrentDist();   
+        HCSR04_Read(&htim8);
+        HAL_Delay(50);
+        HCSR04_Read(&htim8);
+        HAL_Delay(50);
     }
+    GunState.closestObject = aimassist.getCurrentDist();   
 
 
 	  GunState.displayInfo();
@@ -613,46 +628,47 @@ static void MX_TIM1_Init(void)
 }
 
 /**
-  * @brief TIM2 Initialization Function
+  * @brief TIM8 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_TIM2_Init(void)
+static void MX_TIM8_Init(void)
 {
 
-  /* USER CODE BEGIN TIM2_Init 0 */
+  /* USER CODE BEGIN TIM8_Init 0 */
 
-  /* USER CODE END TIM2_Init 0 */
+  /* USER CODE END TIM8_Init 0 */
 
   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_IC_InitTypeDef sConfigIC = {0};
 
-  /* USER CODE BEGIN TIM2_Init 1 */
+  /* USER CODE BEGIN TIM8_Init 1 */
 
-  /* USER CODE END TIM2_Init 1 */
-  htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 72-1;
-  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 0xfff-1;
-  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  /* USER CODE END TIM8_Init 1 */
+  htim8.Instance = TIM8;
+  htim8.Init.Prescaler = 72-1;
+  htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim8.Init.Period = 0xffff-1;
+  htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim8.Init.RepetitionCounter = 0;
+  htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim8) != HAL_OK)
   {
     Error_Handler();
   }
   sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  if (HAL_TIM_ConfigClockSource(&htim8, &sClockSourceConfig) != HAL_OK)
   {
     Error_Handler();
   }
-  if (HAL_TIM_IC_Init(&htim2) != HAL_OK)
+  if (HAL_TIM_IC_Init(&htim8) != HAL_OK)
   {
     Error_Handler();
   }
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim8, &sMasterConfig) != HAL_OK)
   {
     Error_Handler();
   }
@@ -660,13 +676,13 @@ static void MX_TIM2_Init(void)
   sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
   sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
   sConfigIC.ICFilter = 0;
-  if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_3) != HAL_OK)
+  if (HAL_TIM_IC_ConfigChannel(&htim8, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN TIM2_Init 2 */
+  /* USER CODE BEGIN TIM8_Init 2 */
 
-  /* USER CODE END TIM2_Init 2 */
+  /* USER CODE END TIM8_Init 2 */
 
 }
 
@@ -861,7 +877,6 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
 
 
 #ifdef __cplusplus
