@@ -102,20 +102,7 @@ namespace aimAssist{
         int Y = twosHexToDec(Y_ax);
         //Calculate the angle
         double angle_rad = atan2f(Y,X);
-        double angle_deg = 180.0*angle_rad/M_PI;
-        // if (angle_deg > 400){
-        //     LCD_DrawString(100, 200 , "Bug");
-        // }
-        if (Y>0 && X>0)				//Quadrant 1
-            currentBearing = angle_deg;
-        else if(Y>0 && X<0)			//Quadrant 2
-            currentBearing = angle_deg+180;
-        else if(Y<0 && X<0)			//Quadrant 3
-            currentBearing = angle_deg+270;
-        else							//Quadrant 4
-            currentBearing = angle_deg+360;
-        if (currentBearing == 360)
-            currentBearing = 0;
+        currentBearing = 180.0*angle_rad/M_PI;
     }
 
     /* end of the aimAssist class defining */
