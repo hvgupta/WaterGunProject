@@ -10,8 +10,8 @@ namespace aimAssist{
 
     aimAssist::aimAssist(){
         referenceBearing = 0;
-        currentBearing = 0;
-        targetBearing = 0;
+        currentAngle = 0;
+        targetAngle = 0;
         d1 = 0;
         d2 = 0;
         measureTime = 0;
@@ -21,29 +21,30 @@ namespace aimAssist{
     void aimAssist::measureAimAssist(TIM_HandleTypeDef* htim,I2C_HandleTypeDef* hi2c){
         HAL_Ticks initialTime = HAL_GetTick();
         HCSR04_Read(htim);
-        HAL_Delay(25);
+        HAL_Delay(100);
+        degrees initialBearing = measureAngle(hi2c); // get the angle at 
         HCSR04_Read(htim);
         HAL_Delay(25);
 
-        measureAngle(hi2c);
-        referenceBearing = currentBearing;
-
         HCSR04_Read(htim);
-        HAL_Delay(25);
+        HAL_Delay(100);
+        degrees targetBearing = measureAngle(hi2c);
         HCSR04_Read(htim);
         HAL_Delay(25);
 
-        measureAngle(hi2c);
+        referenceBearing = targetBearing;
+        currentAngle = targetBearing - initialBearing; // basically theta
         measureTime = (HAL_GetTick() - initialTime)/1000;
     }
 
     void aimAssist::measureNormal(TIM_HandleTypeDef* htim,I2C_HandleTypeDef* hi2c){
         HCSR04_Read(htim);
         HAL_Delay(50);
+        degrees curBearing = measureAngle(hi2c);
         HCSR04_Read(htim);
         HAL_Delay(50);
 
-        measureAngle(hi2c);
+        currentAngle = (360 + (curBearing - referenceBearing)%360)%360;
     }
 
     void aimAssist::updateD1D2(const centimeters d1d2){
@@ -67,22 +68,22 @@ namespace aimAssist{
     }
 
     degrees aimAssist::predictNext(const HAL_Ticks elapsedTime){
-        float theta = (currentBearing - referenceBearing)*M_PI/180.0;
+        float theta = currentAngle*M_PI/180.0;                      // conversion to radians
         float d0 = sqrt((float)(d1*d1 + d2*d2) - 2*d1*d2*cos(theta));
         float phi = acos(((d1*d1 + d0*d0 - d2*d2)/(2*d1*d0)));
         float multiple = (d0/measureTime)*(elapsedTime)/1000;
         float b = 2.0*multiple*d2*cos(theta+phi);
-        float d3 = (-0.5)*(b+sqrt(b*b-4*(1-multiple)*(-d2*d2))); // quadratic
-        targetBearing = acos((d3*d3 + d2*d2 - (multiple*d3)*(multiple*d3))/(2*d3*d2))*M_PI/180.0;
+        float d3 = (-0.5)*(b+sqrt(b*b-4*(1-multiple)*(d2*d2))); // quadratic
+        targetAngle = acos((d3*d3 + d2*d2 - (multiple*d3)*(multiple*d3))/(2*d3*d2))*M_PI/180.0;
     }
     
     void aimAssist::getCurrentinfo(int arrayOutput[4]){
         arrayOutput[0] = d1;
-        arrayOutput[1] = (360+currentBearing-referenceBearing)%360;
-        arrayOutput[2] = (360+targetBearing-referenceBearing)%360;
+        arrayOutput[1] = currentAngle;
+        arrayOutput[2] = targetAngle;
     }
 
-    void aimAssist::measureAngle(I2C_HandleTypeDef*hi2c){
+    degrees aimAssist::measureAngle(I2C_HandleTypeDef*hi2c){
         //Measurement start
         uint8_t DataX[2];
         uint16_t X_ax;
@@ -102,7 +103,7 @@ namespace aimAssist{
         int Y = twosHexToDec(Y_ax);
         //Calculate the angle
         double angle_rad = atan2f(Y,X);
-        currentBearing = 180.0*angle_rad/M_PI;
+        return 180.0*angle_rad/M_PI;
     }
 
     /* end of the aimAssist class defining */

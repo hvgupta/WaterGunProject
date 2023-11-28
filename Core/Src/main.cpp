@@ -303,7 +303,7 @@ int main(void)
 
       GunState.closestObject = OutputValues[0];
       GunState.Bearing = OutputValues[1];
-      GunState.targetBearing = OutputValues[2];
+      GunState.targetAngle = OutputValues[2];
 
 	  GunState.displayInfo();
 	  /*Don't modify this START*/
