@@ -50,6 +50,8 @@ static WaterGun::currentInfoDisplay GunState;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+ I2C_HandleTypeDef hi2c2;
+
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim8;
 DMA_HandleTypeDef hdma_tim1_ch1;
@@ -67,6 +69,7 @@ static void MX_FSMC_Init(void);
 static void MX_DMA_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM8_Init(void);
+static void MX_I2C2_Init(void);
 static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
 bool distMeasureFlag = false;
@@ -180,18 +183,6 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
 	}
 }
 
-void delay(TIM_HandleTypeDef* htim,const int time){
-    __HAL_TIM_SET_COUNTER(htim,0);
-    while(__HAL_TIM_GET_COUNTER (htim) < time);
-}
-
-void HCSR04_Read (TIM_HandleTypeDef* htim){
-    HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_SET);  // pull the TRIG pin HIGH
-    delay(htim,10);  // wait for 10 us
-    HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_RESET);  // pull the TRIG pin low
-
-    __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC2);
-}
 /**
   * @brief This function handles EXTI line0 interrupt.
   */
@@ -231,6 +222,7 @@ void EXTI0_IRQHandler(void)
 
 void EXTI15_10_IRQHandler(void){
     distMeasureFlag = true;
+    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
 }
 
 
@@ -259,7 +251,12 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+    uint8_t CRA = 0x70;
+    uint8_t CRB = 0xA0;
+    HAL_I2C_Mem_Write(&hi2c2,HMC5883L_Addr<<1,0x00,1,&CRA,1,100);
+    HAL_I2C_Mem_Write(&hi2c2,HMC5883L_Addr<<1,0x01,1,&CRB,1,100);
+    uint8_t single_mode = 0x01;
+    
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -268,6 +265,7 @@ int main(void)
   MX_DMA_Init();
   MX_TIM1_Init();
   MX_TIM8_Init();
+  MX_I2C2_Init();
 
   /* Initialize interrupts */
   /* USER CODE BEGIN 2 */
@@ -283,27 +281,28 @@ int main(void)
   /* USER CODE END 2 */
   HAL_TIM_IC_Start_IT(&htim8,TIM_CHANNEL_2);
   /* Infinite loop */
+  
   /* USER CODE BEGIN WHILE */
   GunState.displayBasic();
-
   while (1)
   {
+    HAL_I2C_Mem_Write(&hi2c2,HMC5883L_Addr<<1,0x02,1,&single_mode,1,100);
     aimassist.D1D2Reset();
+
     if (distMeasureFlag){
-        distMeasureFlag = false;
-        HCSR04_Read(&htim8);
-        HAL_Delay(50);
-        HCSR04_Read(&htim8);
-        HAL_Delay(50);
+        aimassist.measureAimAssist(&htim8,&hi2c2);
+        aimassist.predictNext(1);
     }
     else{
-        HCSR04_Read(&htim8);
-        HAL_Delay(50);
-        HCSR04_Read(&htim8);
-        HAL_Delay(50);
+        aimassist.measureNormal(&htim8,&hi2c2);
     }
-    GunState.closestObject = aimassist.getCurrentDist();   
+    
+      int OutputValues[3];
+      aimassist.getCurrentinfo(OutputValues);   
 
+      GunState.closestObject = OutputValues[0];
+      GunState.Bearing = OutputValues[1];
+      GunState.targetBearing = OutputValues[2];
 
 	  GunState.displayInfo();
 	  /*Don't modify this START*/
@@ -321,14 +320,14 @@ int main(void)
 		  {
 			  Set_Brightness(3*i);
 			  WS2812B_LED_Data_Send();
-			  HAL_Delay (25);
 		  }
+          HAL_Delay (25);
 		  for (int i=19; i>=0; i--)
 		  {
 			  Set_Brightness(3*i);
 			  WS2812B_LED_Data_Send();
-			  HAL_Delay (25);
 		  }
+          HAL_Delay (25);
 	  }
 	  else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
 		  //If switch is pressed
@@ -368,14 +367,14 @@ int main(void)
 			  {
 				  Set_Brightness(3*i);
 				  WS2812B_LED_Data_Send();
-				  HAL_Delay (25);
 			  }
+              HAL_Delay (25);
 			  for (int i=19; i>=0; i--)
 			  {
 				  Set_Brightness(3*i);
 				  WS2812B_LED_Data_Send();
-				  HAL_Delay (25);
 			  }
+               HAL_Delay (25);
 		  }
 	  }
 	  else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
@@ -416,14 +415,14 @@ int main(void)
 			  {
 				  Set_Brightness(3*i);
 				  WS2812B_LED_Data_Send();
-				  HAL_Delay (25);
 			  }
+              HAL_Delay (25);
 			  for (int i=19; i>=0; i--)
 			  {
 				  Set_Brightness(3*i);
 				  WS2812B_LED_Data_Send();
-				  HAL_Delay (25);
 			  }
+              HAL_Delay (25);
 		  }
 	  }
 	  else{	//CONTINIOUS_SHOOT_STATE
@@ -463,14 +462,14 @@ int main(void)
 			  {
 				  Set_Brightness(3*i);
 				  WS2812B_LED_Data_Send();
-				  HAL_Delay (25);
 			  }
+              HAL_Delay (25);
 			  for (int i=19; i>=0; i--)
 			  {
 				  Set_Brightness(3*i);
 				  WS2812B_LED_Data_Send();
-				  HAL_Delay (25);
 			  }
+              HAL_Delay (25);
 		  }
 	  }
 
@@ -550,6 +549,40 @@ static void MX_NVIC_Init(void)
   /* EXTI15_10_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+}
+
+/**
+  * @brief I2C2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C2_Init(void)
+{
+
+  /* USER CODE BEGIN I2C2_Init 0 */
+
+  /* USER CODE END I2C2_Init 0 */
+
+  /* USER CODE BEGIN I2C2_Init 1 */
+
+  /* USER CODE END I2C2_Init 1 */
+  hi2c2.Instance = I2C2;
+  hi2c2.Init.ClockSpeed = 100000;
+  hi2c2.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c2.Init.OwnAddress1 = 0;
+  hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c2.Init.OwnAddress2 = 0;
+  hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C2_Init 2 */
+
+  /* USER CODE END I2C2_Init 2 */
+
 }
 
 /**
@@ -715,8 +748,8 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
