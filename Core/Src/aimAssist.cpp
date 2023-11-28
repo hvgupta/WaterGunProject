@@ -77,7 +77,7 @@ namespace aimAssist{
         targetAngle = acos((d3*d3 + d2*d2 - (multiple*d3)*(multiple*d3))/(2*d3*d2))*M_PI/180.0;
     }
     
-    void aimAssist::getCurrentinfo(int arrayOutput[4]){
+    void aimAssist::getCurrentinfo(int arrayOutput[3]){
         arrayOutput[0] = d1;
         arrayOutput[1] = currentAngle;
         arrayOutput[2] = targetAngle;

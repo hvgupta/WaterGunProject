@@ -35,7 +35,7 @@ namespace WaterGun{
 	};
 
 	void itos(const int,char*);
-	char* STATUSToString(const STATUS&);
+	const char* STATUSToString(const STATUS&);
 
 	void delay(const int);
 }

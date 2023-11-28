@@ -92,7 +92,7 @@ namespace WaterGun{
         sprintf(buffer,"%03d",a);
     }
 
-    char* STATUSToString(const STATUS& status){
+    const char* STATUSToString(const STATUS& status){
         switch (status)
         {
         case STATUS::OFF_STATE:

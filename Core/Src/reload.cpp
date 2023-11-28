@@ -20,6 +20,8 @@ namespace reloadingProcess{
     		this->currentVolume = this->maxVolume;
     		return true;
         }
+    	if (this->currentVolume >= 400)		//Added
+    		return true;					//Added
     	return false;
     }
     void Reload::gunReloading(){
