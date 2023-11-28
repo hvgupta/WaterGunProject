@@ -24,7 +24,7 @@ namespace WaterGun{
 		
 		mililitres Volume;
 		degrees Bearing;
-		degrees targetBearing;
+		degrees targetAngle;
 		STATUS status;
 		centimeters closestObject;
 

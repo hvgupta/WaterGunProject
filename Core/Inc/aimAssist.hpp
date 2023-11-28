@@ -15,8 +15,8 @@ namespace aimAssist{
     class aimAssist{
         private:
             degrees referenceBearing;
-            degrees currentBearing;
-            degrees targetBearing;
+            degrees currentAngle; 
+            degrees targetAngle;
             centimeters d1;
             centimeters d2;
             float measureTime;
@@ -27,7 +27,7 @@ namespace aimAssist{
             
             void updateD1D2(const centimeters);
             void D1D2Reset();
-            void measureAngle(I2C_HandleTypeDef*);
+            degrees measureAngle(I2C_HandleTypeDef*);
             void measureAimAssist(TIM_HandleTypeDef*,I2C_HandleTypeDef*);
             void measureNormal(TIM_HandleTypeDef*,I2C_HandleTypeDef*);
 

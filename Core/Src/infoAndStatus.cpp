@@ -11,7 +11,7 @@ namespace WaterGun{
     currentInfoDisplay::currentInfoDisplay(){
         Volume = 100;
         Bearing = 0;
-        targetBearing = 0;
+        targetAngle = 0;
         status = STATUS::OFF_STATE;
     }
 
@@ -75,7 +75,7 @@ namespace WaterGun{
         LCD_Clear(35,135,18,70,0xffff);
         LCD_DrawString(35,205,toPrint);
 
-        itos(targetBearing,toPrint);
+        itos(targetAngle,toPrint);
         LCD_Clear(35,63,18,70,0xffff);
         LCD_DrawString(35,133,toPrint);
 
