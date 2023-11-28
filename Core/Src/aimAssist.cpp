@@ -72,11 +72,12 @@ namespace aimAssist{
         float phi = acos(((d1*d1 + d0*d0 - d2*d2)/(2*d1*d0)));
         float multiple = (d0/measureTime)*(elapsedTime)/1000;
         float b = 2.0*multiple*d2*cos(theta+phi);
-        float d3 = (-0.5)*(b+sqrt(b*b-4*(1-multiple)*(-d2*d2))); // quadratic
+        float d3 = (-0.5)*(b+sqrt(b*b-4*(1-multiple)*(d2*d2))); // quadratic
         targetBearing = acos((d3*d3 + d2*d2 - (multiple*d3)*(multiple*d3))/(2*d3*d2))*M_PI/180.0;
+        //Where is your return statement?
     }
     
-    void aimAssist::getCurrentinfo(int arrayOutput[4]){
+    void aimAssist::getCurrentinfo(int arrayOutput[3]){
         arrayOutput[0] = d1;
         arrayOutput[1] = (360+currentBearing-referenceBearing)%360;
         arrayOutput[2] = (360+targetBearing-referenceBearing)%360;
@@ -105,7 +106,7 @@ namespace aimAssist{
         double angle_deg = 180.0*angle_rad/M_PI;
         // if (angle_deg > 400){
         //     LCD_DrawString(100, 200 , "Bug");
-        // }
+        // }dd
         if (Y>0 && X>0)				//Quadrant 1
             currentBearing = angle_deg;
         else if(Y>0 && X<0)			//Quadrant 2

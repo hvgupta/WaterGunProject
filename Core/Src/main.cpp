@@ -321,14 +321,14 @@ int main(void)
 		  {
 			  Set_Brightness(3*i);
 			  WS2812B_LED_Data_Send();
+			  HAL_Delay (10);
 		  }
-          HAL_Delay (25);
 		  for (int i=19; i>=0; i--)
 		  {
 			  Set_Brightness(3*i);
 			  WS2812B_LED_Data_Send();
+	          HAL_Delay (10);
 		  }
-          HAL_Delay (25);
 	  }
 	  else if (curStatus == WaterGun::STATUS::RELOAD_STATE){
 		  //If switch is pressed
@@ -368,14 +368,14 @@ int main(void)
 			  {
 				  Set_Brightness(3*i);
 				  WS2812B_LED_Data_Send();
+				  HAL_Delay (10);
 			  }
-              HAL_Delay (25);
 			  for (int i=19; i>=0; i--)
 			  {
 				  Set_Brightness(3*i);
 				  WS2812B_LED_Data_Send();
+				  HAL_Delay (10);
 			  }
-               HAL_Delay (25);
 		  }
 	  }
 	  else if (curStatus == WaterGun::STATUS::SINGLE_SHOOT_STATE){
@@ -416,14 +416,14 @@ int main(void)
 			  {
 				  Set_Brightness(3*i);
 				  WS2812B_LED_Data_Send();
+				  HAL_Delay (10);
 			  }
-              HAL_Delay (25);
 			  for (int i=19; i>=0; i--)
 			  {
 				  Set_Brightness(3*i);
 				  WS2812B_LED_Data_Send();
+				  HAL_Delay (10);
 			  }
-              HAL_Delay (25);
 		  }
 	  }
 	  else{	//CONTINIOUS_SHOOT_STATE
@@ -463,14 +463,14 @@ int main(void)
 			  {
 				  Set_Brightness(3*i);
 				  WS2812B_LED_Data_Send();
+				  HAL_Delay (10);
 			  }
-              HAL_Delay (25);
 			  for (int i=19; i>=0; i--)
 			  {
 				  Set_Brightness(3*i);
 				  WS2812B_LED_Data_Send();
+				  HAL_Delay (10);
 			  }
-              HAL_Delay (25);
 		  }
 	  }
 
@@ -764,8 +764,20 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PC13 PC8 */
-  GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_8;
+  /*Configure GPIO pins : PC13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PC8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_8;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PC9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
@@ -784,7 +796,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PC9 PC10 PC11 */
-  GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11;
+  GPIO_InitStruct.Pin = GPIO_PIN_10|GPIO_PIN_11;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
