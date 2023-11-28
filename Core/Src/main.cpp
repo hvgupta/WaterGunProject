@@ -290,6 +290,7 @@ int main(void)
     aimassist.D1D2Reset();
 
     if (distMeasureFlag){
+    	distMeasureFlag = false;
         aimassist.measureAimAssist(&htim8,&hi2c2);
         aimassist.predictNext(1);
     }
